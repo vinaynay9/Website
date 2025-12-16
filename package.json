@@ -1,0 +1,30 @@
+{
+  "name": "vinay-website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.19",
+    "clsx": "^2.2.0",
+    "framer-motion": "^10.12.16",
+    "lenis": "^0.4.4",
+    "next": "14.2.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.5.4",
+    "@types/react": "18.2.37",
+    "@types/react-dom": "18.2.12",
+    "autoprefixer": "^10.4.25",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.4",
+    "typescript": "5.5.2"
+  }
+}
+

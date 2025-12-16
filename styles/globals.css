@@ -1,0 +1,140 @@
+@import url("https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --color-background: #000000;
+  --color-surface: #0c0c0c;
+  --color-muted: #111111;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text: #f5f5f0;
+  --color-accent: #7ee787;
+  --color-accent-soft: #43f0d7;
+  --color-travel: #0f3d6b;
+  --color-activity: #a55f2d;
+  --color-music: #8c63dc;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.scene-stack {
+  scroll-snap-type: y mandatory;
+  overflow-anchor: none;
+}
+
+.scene {
+  scroll-snap-align: start;
+  min-height: 100vh;
+  padding: var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 55%);
+}
+
+.scene-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.project-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.noise-layer {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='1600' height='900' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")
+    repeat;
+  mix-blend-mode: screen;
+  opacity: 0.12;
+  z-index: 0;
+}
+
+.custom-cursor,
+.cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  transition: transform 180ms ease, opacity 180ms ease;
+  z-index: 9999;
+}
+
+.custom-cursor {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-text);
+  transform: translate(-50%, -50%);
+}
+
+.cursor-ring {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-hidden {
+  opacity: 0;
+}
+
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 18px rgba(126, 231, 135, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .scene * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
