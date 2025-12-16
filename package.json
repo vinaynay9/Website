@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.19",
-    "clsx": "^2.2.0",
+    "@headlessui/react": "1.7.19",
+    "clsx": "1.2.1",
     "framer-motion": "^10.12.16",
-    "lenis": "^0.4.4",
-    "next": "14.2.4",
+    "lenis": "1.1.0",
+    "next": "^14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
@@ -21,10 +21,9 @@
     "@types/node": "20.5.4",
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.12",
-    "autoprefixer": "^10.4.25",
+    "autoprefixer": "10.4.20",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.4",
     "typescript": "5.5.2"
   }
 }
-
