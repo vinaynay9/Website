@@ -1,0 +1,14 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="soccerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#081c15" />
+      <stop offset="100%" stop-color="#37b24d" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#soccerGrad)" />
+  <circle cx="320" cy="220" r="130" fill="rgba(255,255,255,0.08)" stroke="#fff" stroke-width="6" />
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="48" font-family="Bungee Inline, sans-serif" fill="#fff">
+    Soccer
+  </text>
+</svg>
+

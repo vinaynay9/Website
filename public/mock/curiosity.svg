@@ -1,0 +1,14 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="curiosityGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b0d70" />
+      <stop offset="100%" stop-color="#8e2de2" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#curiosityGrad)" />
+  <circle cx="320" cy="220" r="140" fill="rgba(255,255,255,0.08)" />
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="44" font-family="Bungee Inline, sans-serif" fill="#ffffff">
+    Systems
+  </text>
+</svg>
+

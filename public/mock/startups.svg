@@ -1,0 +1,15 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="startupsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9a00" />
+      <stop offset="100%" stop-color="#f55f53" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#startupsGrad)" />
+  <rect x="160" y="140" width="320" height="220" rx="18" fill="rgba(255,255,255,0.1)" />
+  <circle cx="320" cy="250" r="18" fill="#fff" />
+  <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-size="40" font-family="Bungee Inline, sans-serif" fill="#fff">
+    Startups
+  </text>
+</svg>
+

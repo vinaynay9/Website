@@ -1,0 +1,17 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sportsWorld" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050505"/>
+      <stop offset="100%" stop-color="#131a19"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#sportsWorld)" />
+  <g opacity="0.5" fill="none" stroke="#1d1d1d" stroke-width="12" stroke-linecap="round">
+    <path d="M-40 140 C200 70 400 250 620 110 S940 90 1240 210" />
+    <path d="M80 640 C340 560 520 720 840 660 S1200 780 1480 620" />
+  </g>
+  <circle cx="280" cy="380" r="70" fill="#0d0d0d" />
+  <circle cx="880" cy="310" r="110" fill="#101010" />
+  <circle cx="560" cy="520" r="80" fill="#1f1f1f" />
+</svg>
+

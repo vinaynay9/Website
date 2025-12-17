@@ -1,0 +1,14 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="travelUsa" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1425" />
+      <stop offset="100%" stop-color="#1abc9c" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#travelUsa)" />
+  <path d="M100 360 Q200 200 320 250 T540 190" stroke="#fff" stroke-width="6" fill="transparent" stroke-linecap="round" />
+  <text x="50%" y="80%" dominant-baseline="middle" text-anchor="middle" font-size="24" font-family="Space Grotesk, sans-serif" fill="#f4f4f4">
+    Tampa · Atlanta
+  </text>
+</svg>
+

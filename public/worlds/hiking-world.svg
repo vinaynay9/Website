@@ -1,0 +1,17 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hikingWorld" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1b12"/>
+      <stop offset="100%" stop-color="#1f3524"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#hikingWorld)" />
+  <g fill="none" stroke="#162d1d" stroke-width="10" stroke-linecap="round">
+    <path d="M0 540 C160 360 360 400 480 320 S720 260 900 380" />
+    <path d="M150 660 C320 520 520 560 650 470 S810 440 980 580" />
+  </g>
+  <path d="M200 540 L320 360 L440 540 Z" fill="#1d3b2c" opacity="0.8"/>
+  <path d="M720 580 L860 420 L1020 640 Z" fill="#0d261e" opacity="0.9"/>
+  <circle cx="600" cy="200" r="130" fill="#112a18" />
+</svg>
+

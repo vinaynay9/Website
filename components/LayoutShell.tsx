@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { LenisProvider } from "./LenisProvider";
 import { CursorProvider, useCursor } from "./CursorProvider";
+import { ThemeProvider } from "./ThemeProvider";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -29,7 +30,9 @@ export function LayoutShell({ children }: LayoutShellProps) {
   return (
     <CursorProvider>
       <LenisProvider>
-        <LayoutContent>{children}</LayoutContent>
+        <ThemeProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </ThemeProvider>
       </LenisProvider>
     </CursorProvider>
   );

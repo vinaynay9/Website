@@ -1,0 +1,14 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="scubaWorld" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#010b16" />
+      <stop offset="100%" stop-color="#04305d" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#scubaWorld)" />
+  <path d="M60 620 C220 520 420 640 660 520 S920 460 1180 540" stroke="#0b2d43" stroke-width="14" fill="none" opacity="0.8"/>
+  <circle cx="300" cy="300" r="90" fill="#041b35" />
+  <circle cx="840" cy="260" r="120" fill="#062241" />
+  <circle cx="460" cy="480" r="70" fill="#0c2b44" opacity="0.9"/>
+</svg>
+

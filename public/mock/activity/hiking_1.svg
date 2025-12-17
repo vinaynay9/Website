@@ -1,0 +1,13 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hiking1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2f2f2f" />
+      <stop offset="100%" stop-color="#8dc26f" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#hiking1)" />
+  <path d="M60 360 Q200 220 320 280 T580 180" stroke="#fff" stroke-width="6" fill="transparent" stroke-linecap="round" />
+  <circle cx="80" cy="340" r="14" fill="#fff" />
+  <circle cx="560" cy="180" r="10" fill="#fff" />
+</svg>
+

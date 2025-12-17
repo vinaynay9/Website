@@ -1,4 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap");
+.globe-fallback-panel {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  padding: 2rem;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.35));
+}
+@import url("https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Space+Grotesk:wght@400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -16,10 +25,13 @@
   --color-travel: #0f3d6b;
   --color-activity: #a55f2d;
   --color-music: #8c63dc;
+  --color-paper: #f8f7f3;
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2rem;
+  --text-display: "Bungee Inline", "Clash Display", system-ui, sans-serif;
+  --text-body: "Space Grotesk", "Inter", system-ui, sans-serif;
   line-height: 1.6;
 }
 
@@ -32,8 +44,9 @@ body {
   min-height: 100vh;
   background: var(--color-background);
   color: var(--color-text);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: var(--text-body);
   -webkit-font-smoothing: antialiased;
+  cursor: none;
 }
 
 a {
@@ -46,12 +59,10 @@ button {
 }
 
 .scene-stack {
-  scroll-snap-type: y mandatory;
   overflow-anchor: none;
 }
 
 .scene {
-  scroll-snap-align: start;
   min-height: 100vh;
   padding: var(--space-lg);
   display: flex;
@@ -61,17 +72,20 @@ button {
   z-index: 1;
 }
 
-.scene::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 55%);
-}
-
 .scene-grid {
   display: grid;
   gap: 1.5rem;
+}
+
+.scroll-scene {
+  position: relative;
+  width: 100%;
+}
+
+.scroll-scene-pin {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
 }
 
 .project-grid {
@@ -91,6 +105,38 @@ button {
   z-index: 0;
 }
 
+.globe-wrapper {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.globe-tooltip {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
+  color: #fff;
+  pointer-events: none;
+}
+
+.globe-error-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
 .custom-cursor,
 .cursor-ring {
   position: fixed;
@@ -100,16 +146,16 @@ button {
 }
 
 .custom-cursor {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
   background: var(--color-text);
   transform: translate(-50%, -50%);
 }
 
 .cursor-ring {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 999px;
   transform: translate(-50%, -50%);
@@ -117,6 +163,30 @@ button {
 
 .cursor-hidden {
   opacity: 0;
+}
+
+.activity-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.2) contrast(1.05);
+  z-index: -2;
+  mix-blend-mode: screen;
+}
+
+.activity-bg-sports {
+  background-image: url("/worlds/sports-world.svg");
+}
+
+.activity-bg-hiking {
+  background-image: url("/worlds/hiking-world.svg");
+  mix-blend-mode: normal;
+}
+
+.activity-bg-scuba {
+  background-image: url("/worlds/scuba-world.svg");
+  mix-blend-mode: screen;
 }
 
 .modal-backdrop {

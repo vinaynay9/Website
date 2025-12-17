@@ -1,0 +1,16 @@
+<svg width="640" height="440" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b1b1b" />
+      <stop offset="100%" stop-color="#4ecca3" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="440" rx="36" fill="url(#vcGrad)" />
+  <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="46" font-family="Bungee Inline, sans-serif" fill="#ffffff">
+    VC Notes
+  </text>
+  <text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-family="Space Grotesk, sans-serif" fill="#c1ffe8">
+    Quiet diligence
+  </text>
+</svg>
+

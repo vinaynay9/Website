@@ -15,8 +15,7 @@ export const homePanels: HomePanel[] = [
     title: "Tampa Roots",
     description: "Community, family, and curious afternoons in a humid Florida heat.",
     caption: "Family / community",
-    image:
-      "https://images.unsplash.com/photo-1445510861639-0f5c3042a1b4?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/tampa.svg",
     route: "/timeline#tampa",
     highlights: ["Neighborhood rituals", "Soccer on local fields", "First hardware tinkerers"]
   },
@@ -25,8 +24,7 @@ export const homePanels: HomePanel[] = [
     title: "Nerd Origin Story",
     description: "Code, puzzles, and midnight experimentation fed the curiosity.",
     caption: "Curiosity",
-    image:
-      "https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/gatech.svg",
     route: "/timeline#soccer-nerd",
     highlights: ["Early dashboards", "Math club notebooks", "Side projects for friends"]
   },
@@ -35,8 +33,7 @@ export const homePanels: HomePanel[] = [
     title: "Team Energy",
     description: "Soccer, intramurals, and the discipline to operate on a schedule.",
     caption: "Soccer",
-    image:
-      "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/soccer.svg",
     route: "/timeline#soccer-nerd",
     highlights: ["Competing with grit", "Leadership on the field", "Team rituals"]
   },
@@ -45,8 +42,7 @@ export const homePanels: HomePanel[] = [
     title: "Georgia Tech",
     description: "Systems thinking at the intersection of economics, data, and labs.",
     caption: "GT · MS Analytics",
-    image:
-      "https://images.unsplash.com/photo-1430185819558-4c4cfa6dffc0?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/startups.svg",
     route: "/timeline#georgia-tech",
     highlights: ["Research clarity", "Signal obsession", "Economics + analytics"]
   },
@@ -55,8 +51,7 @@ export const homePanels: HomePanel[] = [
     title: "Startup Builder Arc",
     description: "Recall, Anchor, ReadTheField — experiments with documentation rituals.",
     caption: "Startups",
-    image:
-      "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/travel.svg",
     route: "/projects",
     highlights: ["Product gists", "Growth + listening loops", "Runbooks for founders"]
   },
@@ -65,8 +60,7 @@ export const homePanels: HomePanel[] = [
     title: "VC · Innovation Internships",
     description: "Engage, Tech Square Ventures, Catalyst — turning chaos into calm due diligence.",
     caption: "VC / innovation",
-    image:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80",
+    image: "/mock/vc.svg",
     route: "/timeline#internships",
     highlights: ["Founder journeys", "Research-based theses", "Data-backed conviction"]
   }
