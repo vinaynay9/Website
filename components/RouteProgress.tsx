@@ -26,26 +26,36 @@ export function RouteProgress() {
     return () => clearTimeout(timer);
   }, [pathname]);
 
+// Memoized animation variants
+const progressBarInitialVariant = { opacity: 0 } as const;
+const progressBarAnimateVariant = { opacity: 1 } as const;
+const progressBarExitVariant = { opacity: 0 } as const;
+const progressBarTransitionConfig = { duration: 0.2 } as const;
+const progressFillInitialVariant = { scaleX: 0 } as const;
+const progressFillAnimateVariant = { scaleX: [0, 0.7, 1] } as const;
+const progressFillExitVariant = { scaleX: 1 } as const;
+const progressFillTransitionConfig = {
+  duration: 0.4,
+  ease: [0.19, 1, 0.22, 1] as const,
+} as const;
+
   return (
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          initial={progressBarInitialVariant}
+          animate={progressBarAnimateVariant}
+          exit={progressBarExitVariant}
+          transition={progressBarTransitionConfig}
           className="fixed top-0 left-0 right-0 z-[9999] h-0.5 origin-left"
           style={{ pointerEvents: "none" }}
         >
           <motion.div
             className="h-full bg-accent"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: [0, 0.7, 1] }}
-            exit={{ scaleX: 1 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.19, 1, 0.22, 1],
-            }}
+            initial={progressFillInitialVariant}
+            animate={progressFillAnimateVariant}
+            exit={progressFillExitVariant}
+            transition={progressFillTransitionConfig}
           />
         </motion.div>
       )}

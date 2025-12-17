@@ -11,6 +11,14 @@ type HoverRevealCardProps = {
   onReveal: (panel: HomePanel) => void;
 };
 
+// Memoized animation variants
+const cardWhileHoverVariant = { scale: 1.01 } as const;
+const cardTransitionConfig = { type: "spring" as const, stiffness: 180, damping: 16 } as const;
+const imageWhileHoverVariant = { scale: 1.05 } as const;
+const contentInitialVariant = { y: 0 } as const;
+const contentWhileHoverVariant = { y: -12 } as const;
+const contentTransitionConfig = { duration: 0.4, ease: "easeOut" as const } as const;
+
 export const HoverRevealCard = memo(function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
   const { setCursorType } = useCursor();
 
@@ -27,21 +35,21 @@ export const HoverRevealCard = memo(function HoverRevealCard({ panel, onReveal }
       onFocus={handleHover}
       onBlur={handleReset}
       className="group relative h-64 w-full overflow-hidden rounded-[24px] border border-border/60 bg-surface text-left shadow-soft transition-all duration-[120ms] hover:border-accent hover:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_20px_var(--color-accent-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] active:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_12px_var(--color-accent-muted)]"
-      whileHover={{ scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 180, damping: 16 }}
+      whileHover={cardWhileHoverVariant}
+      transition={cardTransitionConfig}
     >
       <motion.div
         className="absolute inset-0 bg-cover bg-center transition duration-500"
         style={{ backgroundImage: `url(${panel.image})` }}
-        whileHover={{ scale: 1.05 }}
+        whileHover={imageWhileHoverVariant}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
       <motion.div
         layout
         className="absolute inset-0 flex flex-col justify-end p-6 text-sm font-medium"
-        initial={{ y: 0 }}
-        whileHover={{ y: -12 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        initial={contentInitialVariant}
+        whileHover={contentWhileHoverVariant}
+        transition={contentTransitionConfig}
       >
         <span className="text-xs uppercase tracking-[0.4em] text-muted">{panel.caption}</span>
         <p className="mt-3 text-xl font-semibold leading-tight">{panel.title}</p>

@@ -5,6 +5,10 @@ import Globe from "react-globe.gl";
 /**
  * GlobeClient - Isolated 3D Globe Component
  * 
+ * TODO: Consider splitting utility functions:
+ * - lib/globe/globe-utils.ts (checkWebGLSupport, prefersReducedMotion, makeCountries)
+ * - components/globe/GlobeClient.tsx (main component)
+ * 
  * A stable, client-only implementation of an interactive 3D globe using globe.gl.
  * This component handles all WebGL/Three.js logic and should remain isolated from
  * other parts of the application.

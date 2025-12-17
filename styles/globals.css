@@ -46,7 +46,7 @@
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2rem;
-  /* Typography - fonts loaded via next/font/google in lib/fonts.ts */
+  /* Typography - fonts loaded via next/font/local in lib/fonts.ts */
   --text-display: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   --text-body: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   /* Increased line-height for better readability and breathing room in text blocks */

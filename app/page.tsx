@@ -1,3 +1,5 @@
+console.log("[BOOT] PAGE LOADED");
+
 import HomeClient from "./home-client";
 
 export const metadata = {

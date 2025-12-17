@@ -4,13 +4,33 @@
  * All fonts are loaded locally from /public/fonts/ to avoid runtime Google Fonts downloads.
  * This prevents ETIMEDOUT errors and ensures the dev server remains stable.
  * 
+ * PATH RULES (CRITICAL - DO NOT BREAK):
+ * ======================================
+ * 1. Font files MUST live in /public/fonts/ at project root
+ * 2. Paths in next/font/local are relative to PROJECT ROOT (not this file)
+ * 3. Use "./public/fonts/..." format (relative to project root)
+ * 4. DO NOT use "../public/fonts/..." (that's relative to lib/fonts.ts - WRONG)
+ * 5. DO NOT use "/public/fonts/..." (absolute paths don't work in next/font/local)
+ * 6. Folder names use PascalCase: Inter/, SpaceGrotesk/, etc.
+ * 7. File names use PascalCase: Inter-Regular.woff2, SpaceGrotesk-SemiBold.woff2
+ * 
+ * Example correct path:
+ *   path: "./public/fonts/Inter/Inter-Regular.woff2"
+ * 
+ * Example WRONG paths:
+ *   path: "../public/fonts/..." ❌ (relative to lib/fonts.ts)
+ *   path: "/public/fonts/..." ❌ (absolute path)
+ *   path: "public/fonts/..." ❌ (missing ./ prefix)
+ *   path: "./public/fonts/inter/inter-regular.woff2" ❌ (wrong case)
+ * 
  * To add fonts:
- * 1. Download font files (see docs/fonts.md)
- * 2. Place .woff2 files in /public/fonts/{FontName}/
- * 3. Add font definition below using next/font/local
- * 4. Export the font variable
- * 5. Add to fontVariables if it should be globally available
- * 6. Run: npm run verify-fonts
+ * 1. Download font files from Google Fonts (see docs/fonts.md)
+ * 2. Place .woff2 files in /public/fonts/{FontName}/ (PascalCase folder)
+ * 3. Rename files to PascalCase: {FontName}-{WeightName}.woff2
+ * 4. Add font definition below using next/font/local
+ * 5. Export the font variable
+ * 6. Add to fontVariables if it should be globally available
+ * 7. Run: npm run verify-fonts
  * 
  * To remove fonts:
  * 1. Remove font folder from /public/fonts/

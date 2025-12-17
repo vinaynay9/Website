@@ -31,7 +31,6 @@ function TimelineEra({
 
   const typography = getTypographyConfig();
   const eraRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useReducedMotion();
   
   // Header takes up ~10% of scroll, eras share the remaining 90%
   const headerPortion = 0.1;
@@ -280,6 +279,8 @@ export default function TimelineClient() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentEraIndex, setCurrentEraIndex] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  // Use ref to track current era index to avoid unnecessary state updates
+  const currentEraIndexRef = useRef(0);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -291,18 +292,23 @@ export default function TimelineClient() {
     const headerPortion = 0.1;
     const erasPortion = 1 - headerPortion;
     
+    let eraIndex: number;
     // Only check eras after header
     if (latest < headerPortion) {
-      setCurrentEraIndex(0);
-      return;
+      eraIndex = 0;
+    } else {
+      const adjustedProgress = (latest - headerPortion) / erasPortion;
+      eraIndex = Math.min(
+        timeline.length - 1,
+        Math.floor(adjustedProgress * timeline.length)
+      );
     }
     
-    const adjustedProgress = (latest - headerPortion) / erasPortion;
-    const eraIndex = Math.min(
-      timeline.length - 1,
-      Math.floor(adjustedProgress * timeline.length)
-    );
-    setCurrentEraIndex(eraIndex);
+    // Only update state if era index actually changed
+    if (eraIndex !== currentEraIndexRef.current) {
+      currentEraIndexRef.current = eraIndex;
+      setCurrentEraIndex(eraIndex);
+    }
   });
 
   // Background color transition

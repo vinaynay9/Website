@@ -1,0 +1,23 @@
+# Cursor Rules for Website Project
+
+## Documentation Guidelines
+
+**DO NOT create markdown files for each prompt or task.** 
+
+- Only create README files and other markdown files that are necessary for understanding the codebase at a high level
+- Do NOT create:
+  - Review documents
+  - Summary documents
+  - Overhaul documentation
+  - Audit reports
+  - Performance reports
+  - Checklists or task lists as markdown files
+  - Any documentation that tracks work done rather than explaining the codebase
+
+- Only create markdown files when they are:
+  - Essential README files (e.g., `README.md` for project overview, component-specific READMEs for complex features)
+  - Documentation that helps developers understand how to use or maintain the codebase
+  - Configuration or setup instructions that are part of the project structure
+
+Keep the repository clean and focused on code, not documentation clutter.
+

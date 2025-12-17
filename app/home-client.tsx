@@ -1,18 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { motion, useTransform, useMotionValueEvent } from "framer-motion";
 
 import { HoverRevealCard } from "@/components/HoverRevealCard";
 import { Modal } from "@/components/Modal";
 import { ProjectCard } from "@/components/ProjectCard";
-import { Scene } from "@/components/Scene";
+import { AnimatedSection } from "@/components/AnimatedSection";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useCursor } from "@/components/CursorProvider";
 import { FunName } from "@/components/FunName";
-import { FloatingMoments } from "@/components/FloatingMoments";
 import { DynamicHeading } from "@/components/DynamicHeading";
 import { LokiTitle } from "@/components/LokiTitle";
 import { homePanels } from "@/data/homePanels";
@@ -21,8 +20,16 @@ import { homeTypography } from "@/lib/typography";
 import { useSharedScroll } from "@/lib/motion/useSharedScroll";
 
 // Dynamically import ElectricField to reduce initial bundle size
+// Heavy animation component - loads client-side only
 const ElectricField = dynamic(
   () => import("@/components/ElectricField").then((mod) => mod.ElectricField),
+  { ssr: false }
+);
+
+// Dynamically import FloatingMoments - below the fold, can be lazy loaded
+// Uses framer-motion but not critical for initial render
+const FloatingMoments = dynamic(
+  () => import("@/components/FloatingMoments").then((mod) => mod.FloatingMoments),
   { ssr: false }
 );
 
@@ -68,21 +75,30 @@ export default function HomeClient() {
 
   // Theme state for smooth CSS transitions
   const [isLightTheme, setIsLightTheme] = useState(false);
+  // Use ref to track current theme to avoid unnecessary state updates
+  const isLightThemeRef = useRef(false);
 
-  // Update theme based on scroll position - triggers CSS transitions
+  // Update theme based on scroll position - only when theme actually changes
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     const shouldBeLight = latest >= ZONE_BOUNDARIES.ZONE_1_END && latest < ZONE_BOUNDARIES.ZONE_2_END;
-    setIsLightTheme(shouldBeLight);
+    // Only update state if theme actually changed
+    if (shouldBeLight !== isLightThemeRef.current) {
+      isLightThemeRef.current = shouldBeLight;
+      setIsLightTheme(shouldBeLight);
+    }
   });
 
   // CSS variables for theme - transitions handled by CSS
-  const themeVars: React.CSSProperties = {
-    "--color-background": isLightTheme ? "#F3F7F3" : "#07150D",
-    "--color-text": isLightTheme ? "#030303" : "#f6f6f2",
-    "--color-border": isLightTheme ? "rgba(0, 0, 0, 0.12)" : "rgba(255, 255, 255, 0.12)",
-    "--color-muted": isLightTheme ? "#666666" : "#cfcfcf",
-    "--color-surface": isLightTheme ? "#f0f5f1" : "#0a1a12",
-  };
+  const themeVars: React.CSSProperties = useMemo(
+    () => ({
+      "--color-background": isLightTheme ? "#F3F7F3" : "#07150D",
+      "--color-text": isLightTheme ? "#030303" : "#f6f6f2",
+      "--color-border": isLightTheme ? "rgba(0, 0, 0, 0.12)" : "rgba(255, 255, 255, 0.12)",
+      "--color-muted": isLightTheme ? "#666666" : "#cfcfcf",
+      "--color-surface": isLightTheme ? "#f0f5f1" : "#0a1a12",
+    }),
+    [isLightTheme]
+  );
 
   // Parallax: Reduced to three speeds for clearer intent
   // Fast: Primary headlines (-20px)
@@ -112,7 +128,7 @@ export default function HomeClient() {
           Spacing: gap-10 creates clear hierarchy between headline and supporting text
           Padding: py-20 ensures content doesn't feel cramped at viewport edges
         */}
-        <Scene className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
+        <AnimatedSection className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxFast }}>
             <LokiTitle text="Hi." size="lg" />
           </motion.div>
@@ -126,9 +142,9 @@ export default function HomeClient() {
               Builder. Explorer. Systems thinker.
             </DynamicHeading>
           </motion.div>
-        </Scene>
+        </AnimatedSection>
 
-        <Scene className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
+        <AnimatedSection className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxFast }} className="flex flex-col items-center gap-4">
             <p className="text-xl font-medium tracking-[0.15em] text-center opacity-75">I'm</p>
             <FunName size="xl" />
@@ -142,9 +158,9 @@ export default function HomeClient() {
               Quiet confidence, high craft, and a scroll that feels like a cinematic story.
             </DynamicHeading>
           </motion.div>
-        </Scene>
+        </AnimatedSection>
 
-        <Scene className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
+        <AnimatedSection className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxFast }}>
             <DynamicHeading
               profile={homeTypography.heading}
@@ -163,7 +179,7 @@ export default function HomeClient() {
               Each panel is a doorway. Slide into the story and discover why I build the way I do.
             </DynamicHeading>
           </motion.div>
-        </Scene>
+        </AnimatedSection>
 
         {/* 
           CHAPTER 2: Story & Work (White background)
@@ -171,7 +187,7 @@ export default function HomeClient() {
           Spacing: gap-20 creates clear separation between header and content grid
           Padding: py-24 provides generous top/bottom breathing room
         */}
-        <Scene className="flex flex-col gap-20 min-h-[160vh] py-24">
+        <AnimatedSection className="flex flex-col gap-20 min-h-[160vh] py-24">
           <SectionHeader
             title="Snapshot panels"
             description="Hover to reveal memories, then tap to dive deeper."
@@ -185,7 +201,7 @@ export default function HomeClient() {
               />
             ))}
           </motion.div>
-        </Scene>
+        </AnimatedSection>
 
         {/* 
           CHAPTER 2 (continued): Floating Moments (White background)
@@ -193,13 +209,13 @@ export default function HomeClient() {
           Spacing: gap-20 creates clear separation between header and content
           Padding: py-24 provides generous top/bottom breathing room
         */}
-        <Scene className="flex flex-col gap-20 min-h-[160vh] py-24">
+        <AnimatedSection className="flex flex-col gap-20 min-h-[160vh] py-24">
           <SectionHeader
             title="Floating Moments"
             description="Hover to reveal the stories behind each moment."
           />
           <FloatingMoments />
-        </Scene>
+        </AnimatedSection>
 
         {/* 
           CHAPTER 2 (continued): Projects (White background)
@@ -207,7 +223,7 @@ export default function HomeClient() {
           Spacing: gap-20 matches previous section for visual rhythm
           Padding: py-24 ensures projects feel grounded and earned
         */}
-        <Scene className="flex flex-col gap-20 min-h-[160vh] py-24">
+        <AnimatedSection className="flex flex-col gap-20 min-h-[160vh] py-24">
           <SectionHeader
             eyebrow="Projects"
             title="Projects in motion"
@@ -218,7 +234,7 @@ export default function HomeClient() {
               <ProjectCard key={project.id} project={project} />
             ))}
           </motion.div>
-        </Scene>
+        </AnimatedSection>
 
         {/* 
           CHAPTER 3: Closing / Forward Energy (Black background)
@@ -226,7 +242,7 @@ export default function HomeClient() {
           Spacing: gap-12 balances content density with breathing room
           Padding: py-20 matches intro scenes for visual consistency
         */}
-        <Scene className="flex flex-col items-center justify-center gap-12 text-center min-h-[150vh] py-20">
+        <AnimatedSection className="flex flex-col items-center justify-center gap-12 text-center min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxMedium }}>
             <p className="text-sm uppercase tracking-[0.5em] text-muted/90">What I'm chasing next</p>
           </motion.div>
@@ -255,9 +271,9 @@ export default function HomeClient() {
               Explore timeline
             </Link>
           </div>
-        </Scene>
+        </AnimatedSection>
 
-        <Scene className="flex flex-col gap-20 min-h-[150vh] py-24">
+        <AnimatedSection className="flex flex-col gap-20 min-h-[150vh] py-24">
           <SectionHeader
             eyebrow="Themed paths"
             title="Where to go next"
@@ -285,7 +301,7 @@ export default function HomeClient() {
               </Link>
             ))}
           </motion.div>
-        </Scene>
+        </AnimatedSection>
       </div>
       {/* 
         Scroll indicator: Minimal visual presence, positioned at bottom

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 
 type FloatingMomentProps = {
   src: string;
@@ -15,6 +15,14 @@ type FloatingMomentProps = {
   delay?: number;
   isMobile?: boolean;
 };
+
+// Memoized animation variants
+const initialVariant = { opacity: 0, scale: 0.85, y: 20 } as const;
+const animateVariant = { opacity: 1, scale: 1, y: 0 } as const;
+const whileHoverVariant = { scale: 1.08, transition: { duration: 0.3 } as const } as const;
+const textInitialVariant = { opacity: 0, scale: 0.95 } as const;
+const textTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
+const imageTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
 
 function FloatingMoment({
   src,
@@ -31,41 +39,67 @@ function FloatingMoment({
   const yOffset = useTransform(scrollProgress, [0, 1], [0, parallaxSpeed]);
   const scale = useTransform(scrollProgress, [0, 0.5, 1], [1, 1.05, 1]);
 
-  const containerStyle = isMobile
-    ? {
-        y: yOffset,
-        scale
-      }
-    : {
-        left: x,
-        top: y,
-        y: yOffset,
-        scale
-      };
+  const containerStyle = useMemo(
+    () =>
+      isMobile
+        ? {
+            y: yOffset,
+            scale
+          }
+        : {
+            left: x,
+            top: y,
+            y: yOffset,
+            scale
+          },
+    [isMobile, x, y, yOffset, scale]
+  );
+
+  const transitionConfig = useMemo(
+    () => ({ duration: 1, delay, ease: [0.19, 1, 0.22, 1] as const }),
+    [delay]
+  );
+
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+  const handleTouchStart = useCallback(() => setIsHovered(true), []);
+  const handleTouchEnd = useCallback(() => setIsHovered(false), []);
+
+  const textAnimateVariant = useMemo(
+    () => ({
+      opacity: isHovered ? 1 : 0,
+      scale: isHovered ? 1 : 0.95
+    }),
+    [isHovered]
+  );
+
+  const imageAnimateVariant = useMemo(
+    () => ({
+      opacity: isHovered ? 0 : 1
+    }),
+    [isHovered]
+  );
 
   return (
     <motion.div
       className={isMobile ? "relative cursor-pointer" : "absolute cursor-pointer"}
       style={containerStyle}
-      initial={{ opacity: 0, scale: 0.85, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 1, delay, ease: [0.19, 1, 0.22, 1] }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={() => setIsHovered(true)}
-      onTouchEnd={() => setIsHovered(false)}
-      whileHover={{ scale: 1.08, transition: { duration: 0.3 } }}
+      initial={initialVariant}
+      animate={animateVariant}
+      transition={transitionConfig}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      whileHover={whileHoverVariant}
     >
       <div className="relative group">
         {/* Text behind the image with improved backdrop */}
         <motion.div
           className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ 
-            opacity: isHovered ? 1 : 0,
-            scale: isHovered ? 1 : 0.95
-          }}
-          transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+          initial={textInitialVariant}
+          animate={textAnimateVariant}
+          transition={textTransitionConfig}
         >
           <div className="px-4 py-3 sm:px-6 sm:py-4 max-w-[200px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-[340px] text-center bg-white/98 backdrop-blur-md rounded-xl shadow-2xl border border-white/20">
             <p className="text-[11px] sm:text-xs md:text-sm lg:text-base font-mono text-[#2d5a3d] leading-relaxed">
@@ -78,8 +112,8 @@ function FloatingMoment({
         <motion.div
           className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 z-10 mx-auto"
           initial={{ opacity: 1 }}
-          animate={{ opacity: isHovered ? 0 : 1 }}
-          transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+          animate={imageAnimateVariant}
+          transition={imageTransitionConfig}
         >
           <div 
             className="relative w-full h-full rounded-lg overflow-hidden border-2 transition-colors duration-300"

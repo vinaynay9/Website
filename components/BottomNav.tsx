@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useCursor } from "./CursorProvider";
 
 const navLinks = [
@@ -20,9 +20,13 @@ export function BottomNav() {
   const [isVisible, setIsVisible] = useState(true);
   const [isAtBottom, setIsAtBottom] = useState(false);
 
+  // Use refs to track state without triggering re-renders
+  const isVisibleRef = useRef(true);
+  const isAtBottomRef = useRef(false);
+  const lastScrollYRef = useRef(0);
+
   useEffect(() => {
     let ticking = false;
-    let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       if (!ticking) {
@@ -34,32 +38,47 @@ export function BottomNav() {
 
           // Check if we're near the bottom (within 200px of footer) - hide earlier to avoid collision
           const nearBottom = scrollBottom < 200;
-          setIsAtBottom(nearBottom);
+          
+          // Only update state if value actually changed
+          if (nearBottom !== isAtBottomRef.current) {
+            isAtBottomRef.current = nearBottom;
+            setIsAtBottom(nearBottom);
+          }
 
-          // Hide on scroll down, show on scroll up (only if not at bottom)
+          // Calculate visibility
+          let shouldBeVisible = true;
           if (!nearBottom) {
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            if (currentScrollY > lastScrollYRef.current && currentScrollY > 100) {
               // Scrolling down
-              setIsVisible(false);
+              shouldBeVisible = false;
             } else {
               // Scrolling up
-              setIsVisible(true);
+              shouldBeVisible = true;
             }
           } else {
             // At bottom, always hide
-            setIsVisible(false);
+            shouldBeVisible = false;
           }
 
-          lastScrollY = currentScrollY;
+          // Only update state if visibility actually changed
+          if (shouldBeVisible !== isVisibleRef.current) {
+            isVisibleRef.current = shouldBeVisible;
+            setIsVisible(shouldBeVisible);
+          }
+
+          lastScrollYRef.current = currentScrollY;
           ticking = false;
         });
         ticking = true;
       }
     };
 
+    // Initialize refs
+    lastScrollYRef.current = window.scrollY;
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []); // Removed lastScrollY dependency to prevent unnecessary re-renders
+  }, []);
 
   const hoverable = {
     onMouseEnter: () => setCursorType("link"),

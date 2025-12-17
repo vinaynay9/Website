@@ -27,14 +27,23 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     };
   }, [isOpen, onClose]);
 
+// Memoized animation variants
+const backdropInitialVariant = { opacity: 0 } as const;
+const backdropAnimateVariant = { opacity: 1 } as const;
+const backdropExitVariant = { opacity: 0 } as const;
+const modalInitialVariant = { scale: 0.95, opacity: 0 } as const;
+const modalAnimateVariant = { scale: 1, opacity: 1 } as const;
+const modalExitVariant = { scale: 0.95, opacity: 0 } as const;
+const modalTransitionConfig = { duration: 0.35, ease: [0.19, 1, 0.22, 1] as const } as const;
+
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center px-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={backdropInitialVariant}
+          animate={backdropAnimateVariant}
+          exit={backdropExitVariant}
           onClick={onClose}
         >
           <motion.div
@@ -46,10 +55,10 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             role="dialog"
             aria-modal="true"
             aria-label={typeof title === "string" ? title : "Modal"}
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.19, 1, 0.22, 1] }}
+            initial={modalInitialVariant}
+            animate={modalAnimateVariant}
+            exit={modalExitVariant}
+            transition={modalTransitionConfig}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4">

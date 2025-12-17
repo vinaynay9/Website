@@ -3,6 +3,11 @@
 import { motion, useReducedMotion, useTransform } from "framer-motion";
 import type { MotionValue } from "framer-motion";
 import type { ReactNode } from "react";
+import { useMemo } from "react";
+
+// Memoized default color values
+const defaultFromColors = { background: "#07150D", text: "#ffffff" } as const;
+const defaultToColors = { background: "#F3F7F3", text: "#050505" } as const;
 
 type ThemeTransitionProps = {
   progress: MotionValue<number>;
@@ -14,8 +19,8 @@ type ThemeTransitionProps = {
 
 export function ThemeTransition({
   progress,
-  fromColors = { background: "#07150D", text: "#ffffff" },
-  toColors = { background: "#F3F7F3", text: "#050505" },
+  fromColors = defaultFromColors,
+  toColors = defaultToColors,
   className,
   children
 }: ThemeTransitionProps) {
@@ -33,10 +38,15 @@ export function ThemeTransition({
     ? "rgba(255,255,255,0.12)"
     : useTransform(progress, [0, 0.7], ["rgba(255,255,255,0.08)", "rgba(0,0,0,0.08)"]);
 
+  const style = useMemo(
+    () => ({ backgroundColor, color: textColor, borderColor }),
+    [backgroundColor, textColor, borderColor]
+  );
+
   return (
     <motion.div
       className={className}
-      style={{ backgroundColor, color: textColor, borderColor }}
+      style={style}
     >
       {children}
     </motion.div>

@@ -2,7 +2,7 @@
 
 import { motion, MotionProps } from "framer-motion";
 import { TypographyProfile } from "@/lib/typography";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 
 export type DynamicHeadingProps = {
   profile: TypographyProfile;
@@ -14,6 +14,11 @@ export type DynamicHeadingProps = {
   scrollProgress?: number; // 0-1 for scroll-based animations
   motionProps?: MotionProps;
 };
+
+// Memoized animation variants
+const initialVariant = { opacity: 0, y: 20 } as const;
+const animateVariant = { opacity: 1, y: 0 } as const;
+const transitionConfig = { duration: 0.6, ease: [0.19, 1, 0.22, 1] as const } as const;
 
 /**
  * DynamicHeading - A flexible heading component that applies typography profiles
@@ -31,24 +36,30 @@ export function DynamicHeading({
 }: DynamicHeadingProps) {
   const Component = motion[as] as any;
 
-  const baseStyle: React.CSSProperties = {
-    fontFamily: `var(${profile.fontFamily}), var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif`,
-    fontWeight: profile.fontWeight,
-    letterSpacing: profile.letterSpacing,
-    lineHeight: profile.lineHeight,
-    ...style, // Merge with provided style prop
-  };
+  const baseStyle: React.CSSProperties = useMemo(
+    () => ({
+      fontFamily: `var(${profile.fontFamily}), var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif`,
+      fontWeight: profile.fontWeight,
+      letterSpacing: profile.letterSpacing,
+      lineHeight: profile.lineHeight,
+      ...style, // Merge with provided style prop
+    }),
+    [profile.fontFamily, profile.fontWeight, profile.letterSpacing, profile.lineHeight, style]
+  );
 
-  const baseClasses = `${profile.className || ""} ${className}`.trim();
+  const baseClasses = useMemo(
+    () => `${profile.className || ""} ${className}`.trim(),
+    [profile.className, className]
+  );
 
   if (animate || scrollProgress !== undefined) {
     return (
       <Component
         style={baseStyle}
         className={baseClasses}
-        initial={animate ? { opacity: 0, y: 20 } : undefined}
-        animate={animate ? { opacity: 1, y: 0 } : undefined}
-        transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+        initial={animate ? initialVariant : undefined}
+        animate={animate ? animateVariant : undefined}
+        transition={transitionConfig}
         {...motionProps}
       >
         {children}

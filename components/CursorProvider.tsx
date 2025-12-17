@@ -23,7 +23,7 @@ export function CursorProvider({ children }: CursorProviderProps) {
       setCursorType,
       setCursorHidden
     }),
-    []
+    [setCursorType, setCursorHidden]
   );
 
   return (

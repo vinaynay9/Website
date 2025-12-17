@@ -2,10 +2,19 @@
 
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import { activitySections } from "@/data/activity";
 import { DynamicHeading } from "@/components/DynamicHeading";
 import { activityTypography } from "@/lib/typography";
+
+// Memoized animation variants
+const activityCardInitialVariant = { opacity: 0, scale: 0.85, y: 20 } as const;
+const activityCardAnimateVariant = { opacity: 1, scale: 1, y: 0 } as const;
+const activityImageTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
+const activityTextTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
+const activityTitleInitialVariant = { opacity: 0 } as const;
+const activityTitleAnimateVariant = { opacity: 1 } as const;
+const activityTitleTransitionConfig = { delay: 0.2 } as const;
 
 type ActivityHoverRevealCardProps = {
   src: string;
@@ -32,34 +41,66 @@ function ActivityHoverRevealCard({
   const yOffset = useTransform(scrollProgress, [0, 1], [0, parallaxSpeed]);
   const scale = useTransform(scrollProgress, [0, 0.5, 1], [1, 1.05, 1]);
 
+  const containerStyle = useMemo(
+    () => ({
+      left: x,
+      top: y,
+      y: yOffset,
+      scale
+    }),
+    [x, y, yOffset, scale]
+  );
+
+  const transitionConfig = useMemo(
+    () => ({ duration: 1, delay, ease: [0.19, 1, 0.22, 1] as const }),
+    [delay]
+  );
+
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
+
+  const imageAnimateVariant = useMemo(
+    () => ({
+      opacity: isHovered ? 0 : 1,
+      scale: isHovered ? 1.05 : 1
+    }),
+    [isHovered]
+  );
+
+  const textAnimateVariant = useMemo(
+    () => ({
+      opacity: isHovered ? 1 : 0,
+      y: isHovered ? 0 : 8
+    }),
+    [isHovered]
+  );
+
+  const shadowStyle = useMemo(
+    () => ({
+      boxShadow: isHovered 
+        ? "0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--color-accent-muted), 0 0 20px var(--color-accent-muted)"
+        : "0 10px 30px rgba(0, 0, 0, 0.3)"
+    }),
+    [isHovered]
+  );
+
   return (
     <motion.div
       className="absolute cursor-pointer"
-      style={{
-        left: x,
-        top: y,
-        y: yOffset,
-        scale
-      }}
-      initial={{ opacity: 0, scale: 0.85, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 1, delay, ease: [0.19, 1, 0.22, 1] }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={containerStyle}
+      initial={activityCardInitialVariant}
+      animate={activityCardAnimateVariant}
+      transition={transitionConfig}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="relative group">
         <div className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
           {/* Image Layer - fades on hover */}
           <motion.div
             className="absolute inset-0"
-            animate={{ 
-              opacity: isHovered ? 0 : 1,
-              scale: isHovered ? 1.05 : 1
-            }}
-            transition={{ 
-              duration: 0.4, 
-              ease: [0.19, 1, 0.22, 1] 
-            }}
+            animate={imageAnimateVariant}
+            transition={activityImageTransitionConfig}
           >
             <Image
               src={src}
@@ -73,14 +114,8 @@ function ActivityHoverRevealCard({
           {/* Text Layer - revealed on hover */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center p-4"
-            animate={{ 
-              opacity: isHovered ? 1 : 0,
-              y: isHovered ? 0 : 8
-            }}
-            transition={{ 
-              duration: 0.4, 
-              ease: [0.19, 1, 0.22, 1] 
-            }}
+            animate={textAnimateVariant}
+            transition={activityTextTransitionConfig}
           >
             {/* Glass blur background for text */}
             <div className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl" />
@@ -96,11 +131,7 @@ function ActivityHoverRevealCard({
           {/* Soft shadow container */}
           <motion.div
             className="absolute inset-0 rounded-2xl shadow-2xl"
-            style={{
-              boxShadow: isHovered 
-                ? "0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--color-accent-muted), 0 0 20px var(--color-accent-muted)"
-                : "0 10px 30px rgba(0, 0, 0, 0.3)"
-            }}
+            style={shadowStyle}
             transition={{ duration: 0.4 }}
           />
         </div>
@@ -179,9 +210,9 @@ function ActivitySection({
           }}
         >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={activityTitleInitialVariant}
+            animate={activityTitleAnimateVariant}
+            transition={activityTitleTransitionConfig}
           >
             <DynamicHeading
               profile={activityTypography.subheading!}

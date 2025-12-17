@@ -7,6 +7,10 @@ import { useReducedMotion } from "framer-motion";
 /**
  * ElectricField Component
  * 
+ * TODO: Consider splitting into:
+ * - lib/animation/electric-field-utils.ts (SeededRandom, generatePath, generateLines)
+ * - components/ElectricField.tsx (main component)
+ * 
  * Creates an animated "electric wire / energy field" background effect with:
  * - Thin SVG lines scattered randomly across the page
  * - Forest green color (#2E7D32) with subtle glow
@@ -182,12 +186,13 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
   const scrollStopTimeoutRef = useRef<NodeJS.Timeout>();
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   
   // Track scroll position for lock behavior
   const lastScrollYRef = useRef<number>(0);
   const scrollLockOffsetRef = useRef<number>(0);
+  // Use ref for isScrolling to avoid state updates on every scroll tick
+  const isScrollingRef = useRef<boolean>(false);
   
   // Generate lines once when dimensions are available
   const lines = useMemo(() => {
@@ -215,7 +220,7 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
   
-  // Track scroll state
+  // Track scroll state - use refs to avoid state updates on every scroll tick
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
     
@@ -229,21 +234,22 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
     
     // If scroll delta is significant, lock pulses
     if (scrollDelta > SCROLL_LOCK_THRESHOLD) {
-      setIsScrolling(true);
+      // Only update ref, not state (state update happens in animation loop if needed)
+      isScrollingRef.current = true;
       // Calculate scroll offset (normalized to 0-1)
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       scrollLockOffsetRef.current = maxScroll > 0 ? currentScrollY / maxScroll : 0;
     } else {
       // Set timeout to resume drifting after scroll stops
       scrollStopTimeoutRef.current = setTimeout(() => {
-        setIsScrolling(false);
+        isScrollingRef.current = false;
       }, SCROLL_STOP_DELAY);
     }
     
     lastScrollYRef.current = currentScrollY;
   });
   
-  // Update dimensions on mount and resize
+  // Update dimensions on mount and resize only (not on scroll)
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
@@ -257,11 +263,10 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
     
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
-    window.addEventListener("scroll", updateDimensions, { passive: true });
+    // Removed scroll listener - dimensions don't change on scroll, only on resize
     
     return () => {
       window.removeEventListener("resize", updateDimensions);
-      window.removeEventListener("scroll", updateDimensions);
     };
   }, []);
   
@@ -318,7 +323,7 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
           const updatedPulses = line.pulses.map((pulse) => {
             let newProgress = pulse.progress;
             
-            if (isScrolling) {
+            if (isScrollingRef.current) {
               // Lock to scroll position
               // Map scroll progress to line progress with some offset
               const scrollProgress = scrollLockOffsetRef.current;
@@ -377,7 +382,7 @@ export function ElectricField({ scrollYProgress, isLightTheme }: ElectricFieldPr
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [prefersReducedMotion, isMobile, animatedLines.length, isScrolling]);
+  }, [prefersReducedMotion, isMobile, animatedLines.length]);
   
   // Cleanup on unmount
   useEffect(() => {

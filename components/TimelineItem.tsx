@@ -16,15 +16,21 @@ type TimelineItemProps = {
   item: TimelineItem;
 };
 
+// Memoized animation variants
+const timelineInitialVariant = { opacity: 0, x: -20 } as const;
+const timelineWhileInViewVariant = { opacity: 1, x: 0 } as const;
+const timelineViewportSettings = { once: true } as const;
+const timelineTransitionConfig = { duration: 0.6, ease: [0.19, 1, 0.22, 1] as const } as const;
+
 export function TimelineItem({ item }: TimelineItemProps) {
   const accentColor = accentColorMap[item.accent ?? "present"] || "var(--color-accent)";
 
   return (
     <motion.article
-      initial={{ opacity: 0, x: -20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+      initial={timelineInitialVariant}
+      whileInView={timelineWhileInViewVariant}
+      viewport={timelineViewportSettings}
+      transition={timelineTransitionConfig}
       className="group relative overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 px-6 py-8 transition-all duration-300 hover:border-accent hover:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_20px_var(--color-accent-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       <div

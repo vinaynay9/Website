@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion, useTransform } from "framer-motion";
 import type { MotionValue } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 
 import { motionTokens } from "@/lib/motion";
 import { useSharedScroll } from "@/lib/motion/useSharedScroll";
@@ -43,7 +43,10 @@ export function ParallaxLayer({
     { clamp }
   );
 
-  const style = axis === "x" ? { x: transformValue } : { y: transformValue };
+  const style = useMemo(
+    () => (axis === "x" ? { x: transformValue } : { y: transformValue }),
+    [axis, transformValue]
+  );
 
   return (
     <motion.div ref={ref} className={className} style={style}>

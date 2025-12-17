@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Modal } from "@/components/Modal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -28,6 +28,8 @@ const GlobeFallback = ({ message }: { message: string }) => (
   </div>
 );
 
+// Dynamically import GlobeClient - heavy Three.js/globe.gl bundle
+// Loads only when needed (route-level) and client-side only
 const GlobeClient = dynamic(
   () =>
     import("@/components/globe/GlobeClient")
@@ -44,6 +46,60 @@ const GlobeClient = dynamic(
   }
 );
 
+// Intersection observer wrapper to delay loading until globe is near viewport
+function LazyGlobeClient({
+  visited,
+  countryNameMap,
+  onCountrySelect
+}: {
+  visited: string[];
+  countryNameMap: Record<string, string>;
+  onCountrySelect: (name: string, isVisited: boolean) => void;
+}) {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        // Start loading when globe container is 200px from viewport
+        rootMargin: "200px"
+      }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full">
+      {shouldLoad ? (
+        <GlobeClient
+          visited={visited}
+          countryNameMap={countryNameMap}
+          onCountrySelect={onCountrySelect}
+        />
+      ) : (
+        <GlobeFallback message="Loading globe…" />
+      )}
+    </div>
+  );
+}
+
+// TODO: Consider extracting helper functions to lib/travel-helpers.ts
 // Helper to find country in travel log by name (handles name variations)
 const findCountryByName = (name: string): TravelCountry | undefined => {
   const normalized = name.toLowerCase();
@@ -77,11 +133,9 @@ const findCountryByName = (name: string): TravelCountry | undefined => {
 };
 
 export default function TravelClient() {
-  const [highlightedCountry, setHighlightedCountry] = useState<TravelCountry | null>(null);
   const [modalCountry, setModalCountry] = useState<TravelCountry | null>(null);
 
   const openModal = (country: TravelCountry | undefined) => {
-    setHighlightedCountry(country ?? null);
     setModalCountry(country ?? null);
   };
 
@@ -107,7 +161,7 @@ export default function TravelClient() {
                   }
                 }}
               >
-                <GlobeClient
+                <LazyGlobeClient
                   visited={visitedCountries}
                   countryNameMap={countryNameMap}
                   onCountrySelect={(name, isVisited) => {

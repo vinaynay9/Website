@@ -1,5 +1,7 @@
  "use client";
 
+console.log("[BOOT] LayoutShell LOADED");
+
 import Link from "next/link";
 import { useCallback } from "react";
 import { LenisProvider } from "./LenisProvider";

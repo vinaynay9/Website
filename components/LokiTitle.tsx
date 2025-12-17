@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useTransform, useMotionValueEvent } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { displayFonts } from "@/lib/fonts";
 import { useSharedScroll } from "@/lib/motion/useSharedScroll";
 
@@ -18,6 +18,8 @@ interface LokiTitleProps {
 export function LokiTitle({ text, className = "", size = "xl" }: LokiTitleProps) {
   const [currentFontIndex, setCurrentFontIndex] = useState(0);
   const [letterOffsets, setLetterOffsets] = useState<number[]>([]);
+  // Use ref to track current font index to avoid unnecessary state updates
+  const currentFontIndexRef = useRef(0);
 
   // Initialize letter offsets with subtle random values
   useEffect(() => {
@@ -33,7 +35,9 @@ export function LokiTitle({ text, className = "", size = "xl" }: LokiTitleProps)
 
   useMotionValueEvent(fontMorphProgress, "change", (latest) => {
     const newIndex = Math.min(Math.floor(latest), displayFonts.length - 1);
-    if (newIndex !== currentFontIndex && newIndex >= 0) {
+    // Only update state if font index actually changed
+    if (newIndex !== currentFontIndexRef.current && newIndex >= 0) {
+      currentFontIndexRef.current = newIndex;
       setCurrentFontIndex(newIndex);
     }
   });
@@ -58,35 +62,60 @@ export function LokiTitle({ text, className = "", size = "xl" }: LokiTitleProps)
 
   const currentFont = displayFonts[currentFontIndex];
 
+  // Memoized transition config
+  const letterTransition = useMemo(
+    () => ({
+      duration: 3,
+      ease: "easeInOut" as const,
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+    }),
+    []
+  );
+
+  // Compute all letter data outside map to avoid hooks in map
+  const lettersData = useMemo(
+    () =>
+      text.split("").map((letter, index) => {
+        if (letter === " ") {
+          return { letter, index, isSpace: true };
+        }
+        const xOffset = letterOffsets[index] || 0;
+        const yOffset = xOffset * 0.5; // Vertical offset is half of horizontal
+        return {
+          letter,
+          index,
+          isSpace: false,
+          style: {
+            fontFamily: `var(${currentFont}), serif`,
+            x: xOffset,
+            y: yOffset,
+          },
+          animate: {
+            x: xOffset,
+            y: yOffset,
+          },
+        };
+      }),
+    [text, letterOffsets, currentFont]
+  );
+
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      {text.split("").map((letter, index) => {
-        // Skip spaces for cleaner animation
-        if (letter === " ") {
-          return <span key={index} className="w-2 md:w-4" />;
+      {lettersData.map((data) => {
+        if (data.isSpace) {
+          return <span key={data.index} className="w-2 md:w-4" />;
         }
 
         return (
           <motion.span
-            key={index}
+            key={data.index}
             className={`${currentFont} ${sizeClasses[size]} font-bold leading-none inline-block`}
-            style={{
-              fontFamily: `var(${currentFont}), serif`,
-              x: letterOffsets[index] || 0,
-              y: (letterOffsets[index] || 0) * 0.5, // Vertical offset is half of horizontal
-            }}
-            animate={{
-              x: letterOffsets[index] || 0,
-              y: (letterOffsets[index] || 0) * 0.5,
-            }}
-            transition={{
-              duration: 3,
-              ease: "easeInOut",
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
+            style={data.style}
+            animate={data.animate}
+            transition={letterTransition}
           >
-            {letter}
+            {data.letter}
           </motion.span>
         );
       })}

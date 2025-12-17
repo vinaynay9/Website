@@ -30,11 +30,21 @@ export function ScrollScene({ children, className = "", minHeight = "120vh", pin
   const content =
     typeof children === "function" ? children({ progress }) : children;
 
+  const sectionStyle = useMemo(
+    () => ({ minHeight }),
+    [minHeight]
+  );
+
+  const sectionClassName = useMemo(
+    () => `scroll-scene ${pin ? "scroll-scene-pin" : ""} ${className}`.trim(),
+    [pin, className]
+  );
+
   return (
     <motion.section
       ref={sceneRef}
-      className={`scroll-scene ${pin ? "scroll-scene-pin" : ""} ${className}`.trim()}
-      style={{ minHeight }}
+      className={sectionClassName}
+      style={sectionStyle}
     >
       {content}
     </motion.section>

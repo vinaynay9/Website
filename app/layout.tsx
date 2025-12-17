@@ -1,3 +1,5 @@
+console.log("[BOOT] LAYOUT LOADED");
+
 import { LayoutShell } from "@/components/LayoutShell";
 import { fontVariables } from "@/lib/fonts";
 import "@/styles/globals.css";
