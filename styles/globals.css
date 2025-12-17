@@ -14,16 +14,22 @@
 
 :root {
   color-scheme: dark;
-  --color-background: #000000;
-  --color-surface: #0c0c0c;
-  --color-muted: #111111;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-text: #f5f5f0;
+  /* Dark mode defaults - ensure high contrast */
+  --color-background: #07150D;
+  --color-surface: #0a1a12;
+  --color-muted: #cfcfcf; /* Light gray for dark mode - high contrast (was #111111 which was too dark) */
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-text: #f6f6f2; /* High contrast white */
+  
+  /* Default accent: Forest green */
   --color-accent: #2d5a3d;
+  --accent: var(--color-accent);
   --color-accent-soft: #4a7c5a;
   --color-accent-light: #5a8a6a;
   --color-accent-muted: rgba(45, 90, 61, 0.4);
   --color-accent-subtle: rgba(45, 90, 61, 0.15);
+  
+  /* Legacy color variables (kept for backward compatibility) */
   --color-travel: #0f3d6b;
   --color-activity: #a55f2d;
   --color-music: #8c63dc;
@@ -45,6 +51,127 @@
   --text-body: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   /* Increased line-height for better readability and breathing room in text blocks */
   line-height: 1.7;
+  
+  /* Theme transition timing - smooth fade over 600ms (within 400-800ms range) */
+  --theme-transition-duration: 600ms;
+  --theme-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Per-route accent color system - Dark mode */
+[data-accent="default"] {
+  /* Forest green - default site accent */
+  --accent: #2d5a3d;
+  --color-accent: #2d5a3d;
+  --color-accent-soft: #4a7c5a;
+  --color-accent-light: #5a8a6a;
+  --color-accent-muted: rgba(45, 90, 61, 0.4);
+  --color-accent-subtle: rgba(45, 90, 61, 0.15);
+}
+
+[data-accent="music"] {
+  /* Deep rose-lavender (pinker than current) */
+  --accent: #b886c7;
+  --color-accent: #b886c7;
+  --color-accent-soft: #c9a3d5;
+  --color-accent-light: #d4b4de;
+  --color-accent-muted: rgba(184, 134, 199, 0.4);
+  --color-accent-subtle: rgba(184, 134, 199, 0.15);
+}
+
+[data-accent="travel"] {
+  /* Cyan blue */
+  --accent: #00b8d4;
+  --color-accent: #00b8d4;
+  --color-accent-soft: #26c6da;
+  --color-accent-light: #4dd0e1;
+  --color-accent-muted: rgba(0, 184, 212, 0.4);
+  --color-accent-subtle: rgba(0, 184, 212, 0.15);
+}
+
+[data-accent="timeline"] {
+  /* Maroon red */
+  --accent: #8b2635;
+  --color-accent: #8b2635;
+  --color-accent-soft: #a63d4d;
+  --color-accent-light: #b85464;
+  --color-accent-muted: rgba(139, 38, 53, 0.4);
+  --color-accent-subtle: rgba(139, 38, 53, 0.15);
+}
+
+[data-accent="activity"] {
+  /* Brighter green (more energetic) */
+  --accent: #4ade80;
+  --color-accent: #4ade80;
+  --color-accent-soft: #6ee7b7;
+  --color-accent-light: #86efac;
+  --color-accent-muted: rgba(74, 222, 128, 0.4);
+  --color-accent-subtle: rgba(74, 222, 128, 0.15);
+}
+
+/* Light mode theme variables - applied via ThemeProvider data-theme attribute */
+.theme-provider[data-theme="light"] {
+  color-scheme: light;
+  --color-background: #F3F7F3;
+  --color-surface: #f0f5f1;
+  --color-muted: #666666; /* Dark gray for light mode - high contrast */
+  --color-border: rgba(0, 0, 0, 0.12);
+  --color-text: #030303; /* High contrast black */
+  
+  /* Default accent: Forest green (lighter for light mode) */
+  --color-accent: #1c5c9a;
+  --accent: var(--color-accent);
+  --color-accent-soft: #a7bfd5;
+}
+
+/* Per-route accent color system - Light mode */
+.theme-provider[data-theme="light"] [data-accent="default"] {
+  /* Forest green - default site accent (lighter for light mode) */
+  --accent: #1a6b3a;
+  --color-accent: #1a6b3a;
+  --color-accent-soft: #2d8f55;
+  --color-accent-light: #3da366;
+  --color-accent-muted: rgba(26, 107, 58, 0.4);
+  --color-accent-subtle: rgba(26, 107, 58, 0.15);
+}
+
+.theme-provider[data-theme="light"] [data-accent="music"] {
+  /* Deep rose-lavender (pinker, adjusted for light mode) */
+  --accent: #9d6fb3;
+  --color-accent: #9d6fb3;
+  --color-accent-soft: #b88fc7;
+  --color-accent-light: #c9a3d5;
+  --color-accent-muted: rgba(157, 111, 179, 0.4);
+  --color-accent-subtle: rgba(157, 111, 179, 0.15);
+}
+
+.theme-provider[data-theme="light"] [data-accent="travel"] {
+  /* Cyan blue (darker for light mode contrast) */
+  --accent: #0097a7;
+  --color-accent: #0097a7;
+  --color-accent-soft: #00acc1;
+  --color-accent-light: #26c6da;
+  --color-accent-muted: rgba(0, 151, 167, 0.4);
+  --color-accent-subtle: rgba(0, 151, 167, 0.15);
+}
+
+.theme-provider[data-theme="light"] [data-accent="timeline"] {
+  /* Maroon red (darker for light mode contrast) */
+  --accent: #6b1d2a;
+  --color-accent: #6b1d2a;
+  --color-accent-soft: #8b2635;
+  --color-accent-light: #a63d4d;
+  --color-accent-muted: rgba(107, 29, 42, 0.4);
+  --color-accent-subtle: rgba(107, 29, 42, 0.15);
+}
+
+.theme-provider[data-theme="light"] [data-accent="activity"] {
+  /* Brighter green (darker for light mode contrast) */
+  --accent: #22c55e;
+  --color-accent: #22c55e;
+  --color-accent-soft: #4ade80;
+  --color-accent-light: #6ee7b7;
+  --color-accent-muted: rgba(34, 197, 94, 0.4);
+  --color-accent-subtle: rgba(34, 197, 94, 0.15);
 }
 
 * {
@@ -61,11 +188,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   cursor: none;
+  /* Smooth theme transitions at root level for performance */
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+              color var(--theme-transition-duration) var(--theme-transition-timing);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  /* Ensure links maintain contrast */
+  transition: color var(--theme-transition-duration) var(--theme-transition-timing);
 }
 
 button {
@@ -206,6 +338,17 @@ button {
   position: relative;
 }
 
+/* Ensure canvas is visible and properly rendered */
+.globe-wrapper canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  z-index: 1 !important;
+  pointer-events: auto !important;
+  background: transparent !important;
+}
+
 .globe-tooltip {
   position: absolute;
   top: 20px;
@@ -286,6 +429,17 @@ button {
   mix-blend-mode: normal;
 }
 
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 .activity-bg-scuba {
   background-image: url("/worlds/scuba-world.svg");
   mix-blend-mode: screen;
@@ -321,13 +475,130 @@ button {
   opacity: 0.6;
 }
 
+/* Reusable accent hover utility class - optimized for instant feedback */
+.accent-hover {
+  transition: all 0.12s ease-out;
+  position: relative;
+}
+
+.accent-hover:hover,
+.accent-hover:focus-visible {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent-muted), 0 0 12px var(--color-accent-muted);
+}
+
+/* Link hover states with forest-green accent */
+a.accent-hover:hover,
+a.accent-hover:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 4px;
+}
+
+/* Footer link specific: left border indicator on hover (replaces underline for cleaner look) */
+footer a.accent-hover {
+  text-decoration: none;
+}
+
+footer a.accent-hover:hover,
+footer a.accent-hover:focus-visible {
+  text-decoration: none;
+}
+
+footer a.accent-hover:hover::before,
+footer a.accent-hover:focus-visible::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: var(--color-accent);
+  border-radius: 0 1px 1px 0;
+  opacity: 0.8;
+  transition: opacity 0.15s ease-out;
+}
+
+/* Active state for instant click feedback */
+a.accent-hover:active {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* Button hover states */
+button.accent-hover:hover,
+button.accent-hover:focus-visible {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent-muted), 0 0 12px var(--color-accent-muted);
+}
+
+/* Active state for instant click feedback */
+button.accent-hover:active {
+  opacity: 0.8;
+  transform: scale(0.97);
+  box-shadow: 0 0 0 1px var(--color-accent-muted), 0 0 8px var(--color-accent-muted);
+}
+
+/* Card hover states */
+.card-accent-hover:hover,
+.card-accent-hover:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent-muted), 0 0 20px var(--color-accent-muted);
+  transition: all 0.12s ease-out;
+}
+
+/* Active state for card clicks */
+.card-accent-hover:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 0 1px var(--color-accent-muted), 0 0 12px var(--color-accent-muted);
+}
+
+/* Header hover states - subtle accent */
+.header-accent-hover:hover {
+  text-shadow: 0 0 8px var(--color-accent-muted);
+  position: relative;
+}
+
+.header-accent-hover:hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--color-accent), transparent);
+  opacity: 0.6;
+}
+
+/* Theme-aware elements should transition smoothly */
+.theme-provider,
+.theme-provider * {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+              color var(--theme-transition-duration) var(--theme-transition-timing),
+              border-color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scene,
-  .scene * {
+  .scene *,
+  body,
+  .theme-provider,
+  .theme-provider * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  
+  .accent-hover,
+  .card-accent-hover,
+  .header-accent-hover {
+    transition-duration: 0.01ms !important;
+  }
 }
+
 

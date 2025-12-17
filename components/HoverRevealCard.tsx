@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { useCursor } from "./CursorProvider";
 
@@ -10,7 +11,7 @@ type HoverRevealCardProps = {
   onReveal: (panel: HomePanel) => void;
 };
 
-export function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
+export const HoverRevealCard = memo(function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
   const { setCursorType } = useCursor();
 
   const handleHover = () => setCursorType("reveal");
@@ -25,7 +26,7 @@ export function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
       onMouseLeave={handleReset}
       onFocus={handleHover}
       onBlur={handleReset}
-      className="group relative h-64 w-full overflow-hidden rounded-[24px] border border-border/60 bg-surface text-left shadow-soft transition-colors hover:border-accent/40"
+      className="group relative h-64 w-full overflow-hidden rounded-[24px] border border-border/60 bg-surface text-left shadow-soft transition-all duration-[120ms] hover:border-accent hover:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_20px_var(--color-accent-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] active:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_12px_var(--color-accent-muted)]"
       whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 180, damping: 16 }}
     >
@@ -56,5 +57,5 @@ export function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
       </motion.div>
     </motion.button>
   );
-}
+});
 

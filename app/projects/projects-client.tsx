@@ -7,7 +7,8 @@ import { projects } from "@/data/projects";
 
 export default function ProjectsClient() {
   return (
-    <section className="space-y-12 px-4 py-10">
+    <div data-accent="default">
+      <section className="space-y-12 px-4 py-10">
       <ParallaxLayer speed={14}>
         <SectionHeader
           eyebrow="Projects"
@@ -21,6 +22,7 @@ export default function ProjectsClient() {
         ))}
       </ParallaxLayer>
     </section>
+    </div>
   );
 }
 

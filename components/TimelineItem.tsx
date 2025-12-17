@@ -25,7 +25,7 @@ export function TimelineItem({ item }: TimelineItemProps) {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-      className="group relative overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 px-6 py-8 transition-colors hover:border-accent/50"
+      className="group relative overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 px-6 py-8 transition-all duration-300 hover:border-accent hover:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_20px_var(--color-accent-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       <div
         className="absolute inset-y-6 left-0 w-1 rounded-r-full"

@@ -1,9 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useTransform } from "framer-motion";
+import type { MotionValue } from "framer-motion";
 import { useRef } from "react";
 
 import { motionTokens } from "@/lib/motion";
+import { useSharedScroll } from "@/lib/motion/useSharedScroll";
 
 type ParallaxLayerProps = {
   children: React.ReactNode;
@@ -11,6 +13,11 @@ type ParallaxLayerProps = {
   axis?: "x" | "y";
   className?: string;
   clamp?: boolean;
+  /**
+   * Optional: Provide a custom scroll progress value.
+   * If not provided, uses the shared scroll hook.
+   */
+  scrollProgress?: MotionValue<number>;
 };
 
 export function ParallaxLayer({
@@ -18,19 +25,19 @@ export function ParallaxLayer({
   speed = motionTokens.parallax.medium,
   axis = "y",
   className,
-  clamp = true
+  clamp = true,
+  scrollProgress
 }: ParallaxLayerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
+  
+  // Use provided scroll progress or fall back to shared scroll hook
+  const sharedScrollProgress = useSharedScroll();
+  const progress = scrollProgress ?? sharedScrollProgress;
 
   const motionAmount = prefersReducedMotion ? 0 : speed;
   const transformValue = useTransform(
-    scrollYProgress,
+    progress,
     [0, 1],
     [0, -motionAmount],
     { clamp }

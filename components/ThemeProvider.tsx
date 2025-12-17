@@ -27,9 +27,11 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({ palette = "dark", children }: ThemeProviderProps) {
   const style = createVars(palette);
+  // Map palette to theme for CSS variable switching
+  const theme = palette === "light" ? "light" : "dark";
 
   return (
-    <div style={style} className="theme-provider">
+    <div style={style} className="theme-provider" data-theme={theme}>
       {children}
     </div>
   );

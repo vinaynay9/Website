@@ -4,28 +4,30 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import { activitySections } from "@/data/activity";
+import { DynamicHeading } from "@/components/DynamicHeading";
+import { activityTypography } from "@/lib/typography";
 
-type FloatingImageProps = {
+type ActivityHoverRevealCardProps = {
   src: string;
   alt: string;
   x: string;
   y: string;
   parallaxSpeed: number;
   scrollProgress: any;
-  hoverText: string;
+  placeholderText: string;
   delay?: number;
 };
 
-function FloatingImage({
+function ActivityHoverRevealCard({
   src,
   alt,
   x,
   y,
   parallaxSpeed,
   scrollProgress,
-  hoverText,
+  placeholderText,
   delay = 0
-}: FloatingImageProps) {
+}: ActivityHoverRevealCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const yOffset = useTransform(scrollProgress, [0, 1], [0, parallaxSpeed]);
   const scale = useTransform(scrollProgress, [0, 0.5, 1], [1, 1.05, 1]);
@@ -44,37 +46,64 @@ function FloatingImage({
       transition={{ duration: 1, delay, ease: [0.19, 1, 0.22, 1] }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ scale: 1.1, transition: { duration: 0.3 } }}
     >
       <div className="relative group">
         <div className="relative w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48">
-          <Image
-            src={src}
-            alt={alt}
-            fill
-            className="object-contain opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:brightness-110"
-            sizes="(max-width: 768px) 128px, 192px"
-          />
-          {/* Subtle glow on hover */}
+          {/* Image Layer - fades on hover */}
           <motion.div
-            className="absolute inset-0 rounded-full blur-xl opacity-0 group-hover:opacity-30 bg-white/20"
-            transition={{ duration: 0.3 }}
+            className="absolute inset-0"
+            animate={{ 
+              opacity: isHovered ? 0 : 1,
+              scale: isHovered ? 1.05 : 1
+            }}
+            transition={{ 
+              duration: 0.4, 
+              ease: [0.19, 1, 0.22, 1] 
+            }}
+          >
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 128px, 192px"
+            />
+          </motion.div>
+
+          {/* Text Layer - revealed on hover */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center p-4"
+            animate={{ 
+              opacity: isHovered ? 1 : 0,
+              y: isHovered ? 0 : 8
+            }}
+            transition={{ 
+              duration: 0.4, 
+              ease: [0.19, 1, 0.22, 1] 
+            }}
+          >
+            {/* Glass blur background for text */}
+            <div className="absolute inset-0 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl" />
+            
+            {/* Text content */}
+            <div className="relative z-10 text-center">
+              <p className="text-xs md:text-sm text-white/90 leading-relaxed px-2">
+                {placeholderText}
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Soft shadow container */}
+          <motion.div
+            className="absolute inset-0 rounded-2xl shadow-2xl"
+            style={{
+              boxShadow: isHovered 
+                ? "0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--color-accent-muted), 0 0 20px var(--color-accent-muted)"
+                : "0 10px 30px rgba(0, 0, 0, 0.3)"
+            }}
+            transition={{ duration: 0.4 }}
           />
         </div>
-        <motion.div
-          className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap pointer-events-none z-20"
-          initial={{ opacity: 0, y: 15, scale: 0.9 }}
-          animate={{ 
-            opacity: isHovered ? 1 : 0, 
-            y: isHovered ? 0 : 15,
-            scale: isHovered ? 1 : 0.9
-          }}
-          transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
-        >
-          <span className="text-xs uppercase tracking-[0.3em] text-white bg-black/70 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-lg">
-            {hoverText}
-          </span>
-        </motion.div>
       </div>
     </motion.div>
   );
@@ -149,20 +178,34 @@ function ActivitySection({
             scale: titleScale
           }}
         >
-          <motion.p 
-            className="text-xs uppercase tracking-[0.6em] text-muted mb-4"
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            {section.badge}
-          </motion.p>
-          <h2 className="text-4xl md:text-6xl font-semibold tracking-[0.05em] mb-4 text-white">
+            <DynamicHeading
+              profile={activityTypography.subheading!}
+              as="p"
+              className="text-xs text-muted mb-4"
+            >
+              {section.badge}
+            </DynamicHeading>
+          </motion.div>
+          <DynamicHeading
+            profile={activityTypography.heading}
+            as="h2"
+            className="text-4xl md:text-6xl mb-4 text-white"
+            animate
+          >
             {section.title}
-          </h2>
-          <p className="text-sm md:text-base text-muted/90 max-w-md mx-auto leading-relaxed">
+          </DynamicHeading>
+          <DynamicHeading
+            profile={activityTypography.body}
+            as="p"
+            className="text-sm md:text-base text-muted/90 max-w-md mx-auto"
+          >
             {section.description}
-          </p>
+          </DynamicHeading>
         </motion.div>
 
         {/* Floating Images Container */}
@@ -181,8 +224,13 @@ function ActivitySection({
             // Alternate parallax directions for visual interest
             const parallaxSpeed = idx % 2 === 0 ? 60 : -60;
             
+            // Generate unique placeholder text for each card
+            const cardNumber = String(idx + 1).padStart(2, "0");
+            const sectionIdUpper = section.id.toUpperCase();
+            const placeholderText = `${sectionIdUpper}_CARD_${cardNumber}: This is placeholder content for ${section.title} card ${idx + 1}. Replace this text with your actual content.`;
+            
             return (
-              <FloatingImage
+              <ActivityHoverRevealCard
                 key={idx}
                 src={img}
                 alt={`${section.title} image ${idx + 1}`}
@@ -190,7 +238,7 @@ function ActivitySection({
                 y={pos.y}
                 parallaxSpeed={parallaxSpeed}
                 scrollProgress={sectionProgress}
-                hoverText={section.subtitle}
+                placeholderText={placeholderText}
                 delay={idx * 0.15}
               />
             );
@@ -224,7 +272,7 @@ export default function ActivityClient() {
   const scubaSection = activitySections.find(s => s.id === "scuba")!;
 
   return (
-    <div ref={containerRef} className="relative">
+    <div data-accent="activity" ref={containerRef} className="relative">
       {/* Sports Section - 200vh */}
       <ActivitySection
         section={sportsSection}

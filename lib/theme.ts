@@ -12,8 +12,8 @@ type Palette = {
 
 export const palettes: Record<PaletteKey, Palette> = {
   dark: {
-    background: "#000000",
-    surface: "#0c0c0c",
+    background: "#07150D",
+    surface: "#0a1a12",
     text: "#f6f6f2",
     muted: "#cfcfcf",
     border: "rgba(255, 255, 255, 0.08)",
@@ -21,8 +21,8 @@ export const palettes: Record<PaletteKey, Palette> = {
     accentSoft: "#4a7c5a"
   },
   light: {
-    background: "#f8f7f3",
-    surface: "#ffffff",
+    background: "#F3F7F3",
+    surface: "#f0f5f1",
     text: "#030303",
     muted: "#666666",
     border: "rgba(0, 0, 0, 0.1)",

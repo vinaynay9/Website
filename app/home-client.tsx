@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { motion, useTransform, useMotionValueEvent } from "framer-motion";
 
 import { HoverRevealCard } from "@/components/HoverRevealCard";
 import { Modal } from "@/components/Modal";
@@ -11,8 +12,19 @@ import { Scene } from "@/components/Scene";
 import { SectionHeader } from "@/components/SectionHeader";
 import { useCursor } from "@/components/CursorProvider";
 import { FunName } from "@/components/FunName";
+import { FloatingMoments } from "@/components/FloatingMoments";
+import { DynamicHeading } from "@/components/DynamicHeading";
+import { LokiTitle } from "@/components/LokiTitle";
 import { homePanels } from "@/data/homePanels";
 import { projects } from "@/data/projects";
+import { homeTypography } from "@/lib/typography";
+import { useSharedScroll } from "@/lib/motion/useSharedScroll";
+
+// Dynamically import ElectricField to reduce initial bundle size
+const ElectricField = dynamic(
+  () => import("@/components/ElectricField").then((mod) => mod.ElectricField),
+  { ssr: false }
+);
 
 const themedPages = [
   { href: "/activity", title: "Activity", description: "Sports, hikes, scuba, and lifts." },
@@ -25,17 +37,17 @@ const themedPages = [
  * Theme Zone System - Three Clear Chapters:
  * 
  * Chapter 1: Introduction / Identity (0% - 33%)
- *   - Black background, white text
+ *   - Dark forest green background, white text
  *   - Content: "Hi", "I'm Vinay", "Hover over the frames"
  *   - Boundary at 33% ensures all intro content completes before theme change
  * 
  * Chapter 2: Story & Work (33% - 67%)
- *   - White background, black text
+ *   - Faint green-tinted off-white background, black text
  *   - Content: "Snapshot panels", "Projects in motion"
  *   - Boundary at 67% provides sufficient space for both story sections
  * 
  * Chapter 3: Closing / Forward Energy (67% - 100%)
- *   - Black background, white text
+ *   - Dark forest green background, white text
  *   - Content: "What I'm chasing next", "Where to go next"
  *   - Final black zone creates forward momentum and closure
  * 
@@ -51,44 +63,48 @@ export default function HomeClient() {
   const [chosenPanel, setChosenPanel] = useState<typeof homePanels[number] | null>(null);
   const { setCursorType } = useCursor();
   
-  // Single scroll reference ensures all parallax layers move in sync
-  const { scrollYProgress } = useScroll();
+  // Use shared scroll hook for better performance
+  const scrollYProgress = useSharedScroll();
 
-  // Theme transitions: Sharp boundaries prevent mid-read color changes
-  // Background transitions: Black → White → Black
-  const backgroundColor = useTransform(
-    scrollYProgress,
-    [0, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_2_END, ZONE_BOUNDARIES.ZONE_2_END, 1],
-    ["#000000", "#000000", "#f8f7f3", "#f8f7f3", "#000000", "#000000"]
-  );
+  // Theme state for smooth CSS transitions
+  const [isLightTheme, setIsLightTheme] = useState(false);
 
-  // Text color: Always contrasts with background for perfect readability
-  const textColor = useTransform(
-    scrollYProgress,
-    [0, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_2_END, ZONE_BOUNDARIES.ZONE_2_END, 1],
-    ["#f5f5f0", "#f5f5f0", "#010101", "#010101", "#f5f5f0", "#f5f5f0"]
-  );
+  // Update theme based on scroll position - triggers CSS transitions
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const shouldBeLight = latest >= ZONE_BOUNDARIES.ZONE_1_END && latest < ZONE_BOUNDARIES.ZONE_2_END;
+    setIsLightTheme(shouldBeLight);
+  });
 
-  // Border color: Subtle theme-aligned borders for visual consistency
-  const borderColor = useTransform(
-    scrollYProgress,
-    [0, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_1_END, ZONE_BOUNDARIES.ZONE_2_END, ZONE_BOUNDARIES.ZONE_2_END, 1],
-    ["rgba(255,255,255,0.08)", "rgba(255,255,255,0.08)", "rgba(0,0,0,0.08)", "rgba(0,0,0,0.08)", "rgba(255,255,255,0.08)", "rgba(255,255,255,0.08)"]
-  );
+  // CSS variables for theme - transitions handled by CSS
+  const themeVars: React.CSSProperties = {
+    "--color-background": isLightTheme ? "#F3F7F3" : "#07150D",
+    "--color-text": isLightTheme ? "#030303" : "#f6f6f2",
+    "--color-border": isLightTheme ? "rgba(0, 0, 0, 0.12)" : "rgba(255, 255, 255, 0.12)",
+    "--color-muted": isLightTheme ? "#666666" : "#cfcfcf",
+    "--color-surface": isLightTheme ? "#f0f5f1" : "#0a1a12",
+  };
 
   // Parallax: Reduced to three speeds for clearer intent
   // Fast: Primary headlines (-20px)
   // Medium: Supporting text (-12px)
   // Slow: Background elements (-6px)
+  // useTransform returns stable MotionValue - no memoization needed
   const parallaxFast = useTransform(scrollYProgress, [0, 1], [0, -20]);
   const parallaxMedium = useTransform(scrollYProgress, [0, 1], [0, -12]);
   const parallaxSlow = useTransform(scrollYProgress, [0, 1], [0, -6]);
 
-  const handleNavigateHover = () => setCursorType("link");
-  const handleNavigateLeave = () => setCursorType("default");
+  const handleNavigateHover = useCallback(() => setCursorType("link"), [setCursorType]);
+  const handleNavigateLeave = useCallback(() => setCursorType("default"), [setCursorType]);
 
   return (
-    <motion.div style={{ backgroundColor, color: textColor }} className="relative">
+    <div 
+      data-accent="default"
+      style={themeVars} 
+      className="relative bg-background text-text transition-[background-color,color,border-color] duration-[600ms] ease-in-out"
+    >
+      {/* Electric field background effect - only on home page */}
+      <ElectricField scrollYProgress={scrollYProgress} isLightTheme={isLightTheme} />
+      
       <div className="scene-stack w-full">
         {/* 
           CHAPTER 1: Introduction / Identity (Black background)
@@ -98,14 +114,17 @@ export default function HomeClient() {
         */}
         <Scene className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxFast }}>
-            <h1 className="font-display text-[clamp(72px,9vw,120px)] uppercase tracking-[0.1em] text-center leading-none">
-              Hi.
-            </h1>
+            <LokiTitle text="Hi." size="lg" />
           </motion.div>
           <motion.div style={{ y: parallaxMedium }}>
-            <p className="text-sm uppercase tracking-[0.5em] text-muted/90 text-center">
+            <DynamicHeading
+              profile={homeTypography.subheading!}
+              as="p"
+              className="text-sm uppercase text-muted/90 text-center"
+              animate
+            >
               Builder. Explorer. Systems thinker.
-            </p>
+            </DynamicHeading>
           </motion.div>
         </Scene>
 
@@ -115,20 +134,34 @@ export default function HomeClient() {
             <FunName size="xl" />
           </motion.div>
           <motion.div style={{ y: parallaxMedium }}>
-            <p className="max-w-3xl text-center text-base text-muted/90 leading-relaxed">
+            <DynamicHeading
+              profile={homeTypography.body}
+              as="p"
+              className="max-w-3xl text-center text-base text-muted/90"
+            >
               Quiet confidence, high craft, and a scroll that feels like a cinematic story.
-            </p>
+            </DynamicHeading>
           </motion.div>
         </Scene>
 
         <Scene className="flex flex-col items-center justify-center gap-10 min-h-[150vh] py-20">
           <motion.div style={{ y: parallaxFast }}>
-            <p className="text-2xl font-semibold tracking-[0.2em] text-center">Hover over the frames.</p>
+            <DynamicHeading
+              profile={homeTypography.heading}
+              as="p"
+              className="header-accent-hover text-2xl text-center relative inline-block transition-all duration-300"
+            >
+              Hover over the frames.
+            </DynamicHeading>
           </motion.div>
           <motion.div style={{ y: parallaxMedium }}>
-            <p className="max-w-2xl text-center text-sm text-muted/90 leading-relaxed">
+            <DynamicHeading
+              profile={homeTypography.body}
+              as="p"
+              className="max-w-2xl text-center text-sm text-muted/90"
+            >
               Each panel is a doorway. Slide into the story and discover why I build the way I do.
-            </p>
+            </DynamicHeading>
           </motion.div>
         </Scene>
 
@@ -152,6 +185,20 @@ export default function HomeClient() {
               />
             ))}
           </motion.div>
+        </Scene>
+
+        {/* 
+          CHAPTER 2 (continued): Floating Moments (White background)
+          Scene height: 160vh maintains consistency with other sections
+          Spacing: gap-20 creates clear separation between header and content
+          Padding: py-24 provides generous top/bottom breathing room
+        */}
+        <Scene className="flex flex-col gap-20 min-h-[160vh] py-24">
+          <SectionHeader
+            title="Floating Moments"
+            description="Hover to reveal the stories behind each moment."
+          />
+          <FloatingMoments />
         </Scene>
 
         {/* 
@@ -191,17 +238,19 @@ export default function HomeClient() {
           <div className="flex flex-wrap items-center justify-center gap-6 mt-6">
             <Link
               href="/projects"
+              prefetch={true}
               onMouseEnter={handleNavigateHover}
               onMouseLeave={handleNavigateLeave}
-              className="rounded-full border border-border/70 px-6 py-2.5 text-xs uppercase tracking-[0.4em] transition-colors hover:border-border"
+              className="accent-hover rounded-full border border-border/70 px-6 py-2.5 text-xs uppercase tracking-[0.4em] transition-all duration-[120ms] hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               View builds
             </Link>
             <Link
               href="/timeline"
+              prefetch={true}
               onMouseEnter={handleNavigateHover}
               onMouseLeave={handleNavigateLeave}
-              className="rounded-full border border-border/70 px-6 py-2.5 text-xs uppercase tracking-[0.4em] transition-colors hover:border-border"
+              className="accent-hover rounded-full border border-border/70 px-6 py-2.5 text-xs uppercase tracking-[0.4em] transition-all duration-[120ms] hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Explore timeline
             </Link>
@@ -219,12 +268,19 @@ export default function HomeClient() {
               <Link
                 key={page.href}
                 href={page.href}
+                prefetch={true}
                 onMouseEnter={handleNavigateHover}
                 onMouseLeave={handleNavigateLeave}
-                className="group flex flex-col justify-between rounded-[20px] border border-border/60 bg-surface/60 p-8 transition-colors hover:border-border/90"
+                className="card-accent-hover group flex flex-col justify-between rounded-[20px] border border-border/60 bg-surface/60 p-8 transition-all duration-[120ms] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <div className="text-xs uppercase tracking-[0.45em] text-muted/80">Go</div>
-                <h3 className="mt-6 text-2xl font-semibold">{page.title}</h3>
+                <DynamicHeading
+                  profile={homeTypography.heading}
+                  as="h3"
+                  className="mt-6 text-2xl"
+                >
+                  {page.title}
+                </DynamicHeading>
                 <p className="mt-3 text-sm text-muted/90 leading-relaxed">{page.description}</p>
               </Link>
             ))}
@@ -235,9 +291,8 @@ export default function HomeClient() {
         Scroll indicator: Minimal visual presence, positioned at bottom
         Opacity reduced to 15% to remain subtle and non-distracting
       */}
-      <motion.div
-        className="pointer-events-none absolute inset-x-0 bottom-16 mx-auto h-0.5 w-3/5 bg-gradient-to-r from-current/0 via-current to-current/0 opacity-[0.15]"
-        style={{ borderColor }}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-16 mx-auto h-0.5 w-3/5 bg-gradient-to-r from-current/0 via-current to-current/0 opacity-[0.15] border-border transition-colors duration-[600ms] ease-in-out"
       />
       <Modal
         isOpen={Boolean(chosenPanel)}
@@ -255,15 +310,16 @@ export default function HomeClient() {
         {chosenPanel && (
           <Link
             href={chosenPanel.route}
+            prefetch={true}
             onMouseEnter={handleNavigateHover}
             onMouseLeave={handleNavigateLeave}
-            className="text-xs uppercase tracking-[0.5em] text-accent"
+            className="accent-hover text-xs uppercase tracking-[0.5em] text-accent transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
           >
             Go to story
           </Link>
         )}
       </Modal>
-    </motion.div>
+    </div>
   );
 }
 

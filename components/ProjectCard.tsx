@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { useCursor } from "./CursorProvider";
 
@@ -11,7 +12,7 @@ type ProjectCardProps = {
   project: Project;
 };
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = memo(function ProjectCard({ project }: ProjectCardProps) {
   const { setCursorType } = useCursor();
 
   const handleEnter = () => setCursorType("link");
@@ -24,10 +25,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
       whileHover={{ y: -4 }}
-      className="group overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 shadow-soft backdrop-blur transition-all duration-300 hover:border-accent/50 hover:shadow-md"
+      className="group overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 shadow-soft backdrop-blur transition-all duration-[120ms] hover:border-accent hover:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_20px_var(--color-accent-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] active:shadow-[0_0_0_1px_var(--color-accent-muted),0_0_12px_var(--color-accent-muted)]"
     >
       <Link
         href={project.link}
+        prefetch={true}
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
         className="flex flex-col"
@@ -90,5 +92,5 @@ export function ProjectCard({ project }: ProjectCardProps) {
       </Link>
     </motion.article>
   );
-}
+});
 

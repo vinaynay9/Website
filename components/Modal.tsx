@@ -6,7 +6,7 @@ import { useEffect } from "react";
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title: string | React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -38,14 +38,14 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
           onClick={onClose}
         >
           <motion.div
-            className="modal-backdrop absolute inset-0 bg-black/70"
+            className="modal-backdrop absolute inset-0 bg-background/70"
             aria-hidden
           />
           <motion.div
             className="relative z-10 max-w-3xl rounded-[24px] border border-border/50 bg-surface/95 p-8 shadow-soft"
             role="dialog"
             aria-modal="true"
-            aria-label={title}
+            aria-label={typeof title === "string" ? title : "Modal"}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
@@ -53,10 +53,13 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-4">
-              <h3 className="text-2xl font-semibold">{title}</h3>
+              <div className="text-2xl font-semibold">
+                {typeof title === "string" ? <h3>{title}</h3> : title}
+              </div>
               <button
-                className="text-sm uppercase tracking-[0.5em] text-muted"
+                className="accent-hover text-sm uppercase tracking-[0.5em] text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
                 onClick={onClose}
+                type="button"
               >
                 Close
               </button>

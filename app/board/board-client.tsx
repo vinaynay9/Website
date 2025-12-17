@@ -59,7 +59,7 @@ export default function BoardClient() {
             />
             <button
               type="submit"
-              className="w-max rounded-full border border-border/70 px-6 py-2 text-xs uppercase tracking-[0.4em]"
+              className="accent-hover w-max rounded-full border border-border/70 px-6 py-2 text-xs uppercase tracking-[0.4em] transition-all duration-300 hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Enter
             </button>

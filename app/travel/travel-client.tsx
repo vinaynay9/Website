@@ -5,9 +5,12 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { Modal } from "@/components/Modal";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ParallaxLayer } from "@/components/motion/ParallaxLayer";
 import { ScrollScene } from "@/components/motion/ScrollScene";
 import { SectionHeader } from "@/components/SectionHeader";
+import { DynamicHeading } from "@/components/DynamicHeading";
+import { travelTypography, getNativeCountryName } from "@/lib/typography";
 import { travelLog, type TravelCountry, visitedCountries, countryNameMap } from "@/data/travel";
 
 const GlobeFallback = ({ message }: { message: string }) => (
@@ -25,10 +28,10 @@ const GlobeFallback = ({ message }: { message: string }) => (
   </div>
 );
 
-const GlobeDisplay = dynamic(
+const GlobeClient = dynamic(
   () =>
-    import("@/components/GlobeDisplay")
-      .then((mod) => mod.GlobeDisplay)
+    import("@/components/globe/GlobeClient")
+      .then((mod) => mod.GlobeClient)
       .catch((error) => {
         if (process.env.NODE_ENV === "development") {
           console.error("Globe failed to load", error);
@@ -83,7 +86,7 @@ export default function TravelClient() {
   };
 
   return (
-    <div className="space-y-10 px-4 py-10">
+    <div data-accent="travel" className="space-y-10 px-4 py-10">
       <SectionHeader
         eyebrow="Travel"
         title="Country log"
@@ -96,13 +99,31 @@ export default function TravelClient() {
               <p className="text-xs uppercase tracking-[0.5em] text-muted">Globe</p>
             </ParallaxLayer>
             <ParallaxLayer speed={14}>
-              <GlobeDisplay
-                visited={visitedCountries}
-                onCountrySelect={(name) => {
-                  const match = findCountryByName(name);
-                  openModal(match);
+              <ErrorBoundary
+                fallback={<GlobeFallback message="Globe unavailable" />}
+                onError={(error) => {
+                  if (process.env.NODE_ENV === "development") {
+                    console.error("[Travel] Globe error:", error);
+                  }
                 }}
-              />
+              >
+                <GlobeClient
+                  visited={visitedCountries}
+                  countryNameMap={countryNameMap}
+                  onCountrySelect={(name, isVisited) => {
+                    // Log country name in dev only
+                    if (process.env.NODE_ENV === "development") {
+                      console.log("Country selected:", name, "Visited:", isVisited);
+                    }
+                    
+                    // If visited, find and open modal
+                    if (isVisited) {
+                      const match = findCountryByName(name);
+                      openModal(match);
+                    }
+                  }}
+                />
+              </ErrorBoundary>
             </ParallaxLayer>
             <ParallaxLayer speed={10}>
               <p className="mt-6 text-sm text-muted">Drag to rotate, click to unlock travel notes.</p>
@@ -119,16 +140,46 @@ export default function TravelClient() {
             <div className="absolute inset-0 opacity-30" aria-hidden />
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.5em] text-muted">{country.year}</p>
-                <h3 className="text-2xl font-semibold text-white">{country.name}</h3>
+                <DynamicHeading
+                  profile={travelTypography.subheading!}
+                  as="p"
+                  className="text-xs text-muted"
+                >
+                  {country.year}
+                </DynamicHeading>
+                <DynamicHeading
+                  profile={travelTypography.heading}
+                  as="h3"
+                  className="text-2xl text-white"
+                >
+                  {country.name}
+                </DynamicHeading>
+                {(() => {
+                  const native = getNativeCountryName(country.name);
+                  return native ? (
+                    <DynamicHeading
+                      profile={travelTypography.subheading!}
+                      as="p"
+                      className="text-sm text-muted/70 mt-1"
+                    >
+                      {native.native}
+                    </DynamicHeading>
+                  ) : null;
+                })()}
               </div>
-              <span className="text-xs uppercase tracking-[0.5em] text-accent">{country.region}</span>
+              <DynamicHeading
+                profile={travelTypography.subheading!}
+                as="span"
+                className="text-xs text-accent"
+              >
+                {country.region}
+              </DynamicHeading>
             </div>
             <p className="text-sm text-muted">{country.highlight}</p>
             <button
               type="button"
               onClick={() => openModal(country)}
-              className="mt-4 self-start rounded-full border border-border/60 px-5 py-2 text-xs uppercase tracking-[0.4em]"
+              className="accent-hover mt-4 self-start rounded-full border border-border/60 px-5 py-2 text-xs uppercase tracking-[0.4em] transition-all duration-300 hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               View gallery
             </button>
@@ -138,7 +189,29 @@ export default function TravelClient() {
       <Modal
         isOpen={Boolean(modalCountry)}
         onClose={() => setModalCountry(null)}
-        title={modalCountry?.name ?? "Visited country"}
+        title={
+          modalCountry ? (
+            <div>
+              <DynamicHeading profile={travelTypography.heading} as="span">
+                {modalCountry.name}
+              </DynamicHeading>
+              {(() => {
+                const native = getNativeCountryName(modalCountry.name);
+                return native ? (
+                  <DynamicHeading
+                    profile={travelTypography.subheading!}
+                    as="p"
+                    className="text-sm text-muted/70 mt-1"
+                  >
+                    {native.native}
+                  </DynamicHeading>
+                ) : null;
+              })()}
+            </div>
+          ) : (
+            "Visited country"
+          )
+        }
       >
         <p className="text-sm text-muted">
           {modalCountry?.highlight ?? "Tap a highlighted country to see a placeholder note."}

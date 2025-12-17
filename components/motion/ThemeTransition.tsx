@@ -14,8 +14,8 @@ type ThemeTransitionProps = {
 
 export function ThemeTransition({
   progress,
-  fromColors = { background: "#000000", text: "#ffffff" },
-  toColors = { background: "#f8f7f3", text: "#050505" },
+  fromColors = { background: "#07150D", text: "#ffffff" },
+  toColors = { background: "#F3F7F3", text: "#050505" },
   className,
   children
 }: ThemeTransitionProps) {
