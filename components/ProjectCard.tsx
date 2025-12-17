@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useCursor } from "./CursorProvider";
 
@@ -22,32 +23,69 @@ export function ProjectCard({ project }: ProjectCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
-      className="overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 p-6 shadow-soft backdrop-blur"
+      whileHover={{ y: -4 }}
+      className="group overflow-hidden rounded-[20px] border border-border/60 bg-surface/80 shadow-soft backdrop-blur transition-all duration-300 hover:border-accent/50 hover:shadow-md"
     >
       <Link
         href={project.link}
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
-        className="flex flex-col gap-4"
+        className="flex flex-col"
       >
-        <div className="flex items-center justify-between text-xs uppercase tracking-[0.45em]">
-          <span>{project.status === "building" ? "Building" : "Shipped"}</span>
-          <span className="text-muted">{project.id}</span>
-        </div>
-        <div>
-          <h3 className="text-2xl font-semibold">{project.name}</h3>
-          <p className="mt-2 text-sm text-muted">{project.tagline}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-[0.7rem] uppercase tracking-[0.45em] text-muted">
-          {project.tags.map((tag) => (
-            <span key={tag} className="rounded-full border border-border/40 px-3 py-1">
-              {tag}
+        {/* Preview Image - 16:9 aspect ratio */}
+        <div className="relative aspect-video w-full overflow-hidden bg-surface/40">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+            className="relative h-full w-full"
+          >
+            <Image
+              src={project.previewImage}
+              alt={`${project.name} preview`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </motion.div>
+          {/* Status badge */}
+          <div className="absolute top-3 right-3">
+            <span className="rounded-full border border-border/60 bg-surface/90 px-3 py-1 text-[0.65rem] uppercase tracking-[0.3em] backdrop-blur-sm">
+              {project.status === "building" ? "Building" : "Shipped"}
             </span>
-          ))}
+          </div>
         </div>
-        <div className="flex items-center justify-between text-xs uppercase tracking-[0.5em] text-accent">
-          <span>{project.cta}</span>
-          <span aria-hidden>→</span>
+
+        {/* Content */}
+        <div className="flex flex-col gap-4 p-6">
+          {/* Title + Subtitle */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-2xl font-semibold leading-tight">{project.name}</h3>
+            <p className="text-sm leading-relaxed text-muted">{project.subtitle}</p>
+          </div>
+
+          {/* Bullet Points - Exactly 2 */}
+          <ul className="flex flex-col gap-2.5">
+            {project.bullets.map((bullet, index) => (
+              <li key={index} className="flex items-start gap-2.5 text-sm text-muted">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/60" />
+                <span className="leading-relaxed">{bullet}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* CTA indicator */}
+          <div className="flex items-center gap-2 pt-2 text-xs uppercase tracking-[0.4em] text-accent/80 transition-colors group-hover:text-accent">
+            <span>View project</span>
+            <motion.span
+              initial={{ x: 0 }}
+              whileHover={{ x: 3 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              aria-hidden
+            >
+              →
+            </motion.span>
+          </div>
         </div>
       </Link>
     </motion.article>

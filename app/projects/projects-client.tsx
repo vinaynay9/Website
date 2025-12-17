@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { ParallaxLayer } from "@/components/motion/ParallaxLayer";
 import { SectionHeader } from "@/components/SectionHeader";

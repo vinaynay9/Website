@@ -17,8 +17,8 @@ export const palettes: Record<PaletteKey, Palette> = {
     text: "#f6f6f2",
     muted: "#cfcfcf",
     border: "rgba(255, 255, 255, 0.08)",
-    accent: "#7ee787",
-    accentSoft: "#43f0d7"
+    accent: "#2d5a3d",
+    accentSoft: "#4a7c5a"
   },
   light: {
     background: "#f8f7f3",

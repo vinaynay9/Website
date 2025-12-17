@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .globe-fallback-panel {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
@@ -7,11 +11,6 @@
   text-align: center;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.35));
 }
-@import url("https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Space+Grotesk:wght@400;500;600&display=swap");
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   color-scheme: dark;
@@ -20,23 +19,37 @@
   --color-muted: #111111;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-text: #f5f5f0;
-  --color-accent: #7ee787;
-  --color-accent-soft: #43f0d7;
+  --color-accent: #2d5a3d;
+  --color-accent-soft: #4a7c5a;
+  --color-accent-light: #5a8a6a;
+  --color-accent-muted: rgba(45, 90, 61, 0.4);
+  --color-accent-subtle: rgba(45, 90, 61, 0.15);
   --color-travel: #0f3d6b;
   --color-activity: #a55f2d;
   --color-music: #8c63dc;
+  /* Lavender music theme */
+  --color-lavender-dark: #2d1f3d;
+  --color-lavender-base: #4a3a5a;
+  --color-lavender-soft: #6b5a7a;
+  --color-lavender-light: #8b7a9a;
+  --color-lavender-muted: rgba(107, 90, 122, 0.4);
+  --color-lavender-subtle: rgba(107, 90, 122, 0.15);
+  --color-lavender-accent: #9d8bb3;
   --color-paper: #f8f7f3;
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2rem;
-  --text-display: "Bungee Inline", "Clash Display", system-ui, sans-serif;
-  --text-body: "Space Grotesk", "Inter", system-ui, sans-serif;
-  line-height: 1.6;
+  /* Typography - fonts loaded via next/font/google in lib/fonts.ts */
+  --text-display: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
+  --text-body: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
+  /* Increased line-height for better readability and breathing room in text blocks */
+  line-height: 1.7;
 }
 
 * {
   box-sizing: border-box;
+  cursor: none !important;
 }
 
 body {
@@ -44,8 +57,9 @@ body {
   min-height: 100vh;
   background: var(--color-background);
   color: var(--color-text);
-  font-family: var(--text-body);
+  font-family: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   cursor: none;
 }
 
@@ -60,21 +74,27 @@ button {
 
 .scene-stack {
   overflow-anchor: none;
+  /* Explicitly disable scroll-snap for smooth cinematic scrolling */
+  scroll-snap-type: none;
 }
 
 .scene {
   min-height: 100vh;
-  padding: var(--space-lg);
+  /* Increased padding for better breathing room - allows content to breathe at edges */
+  padding: var(--space-lg) var(--space-md);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
+  /* Ensure no scroll-snap on individual scenes */
+  scroll-snap-align: none;
 }
 
 .scene-grid {
   display: grid;
-  gap: 1.5rem;
+  /* Increased gap for better visual separation between grid items */
+  gap: 2rem;
 }
 
 .scroll-scene {
@@ -90,8 +110,21 @@ button {
 
 .project-grid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* Increased gap for better breathing room between project cards */
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .project-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .noise-layer {
@@ -103,6 +136,67 @@ button {
   mix-blend-mode: screen;
   opacity: 0.12;
   z-index: 0;
+}
+
+/* Circuit board / wiring texture - subtle background pattern */
+.circuit-texture {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image: 
+    /* Horizontal circuit lines */
+    linear-gradient(to right, var(--color-accent-subtle) 1px, transparent 1px),
+    linear-gradient(to right, var(--color-accent-subtle) 1px, transparent 1px),
+    /* Vertical circuit lines */
+    linear-gradient(to bottom, var(--color-accent-subtle) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-accent-subtle) 1px, transparent 1px),
+    /* Subtle grid pattern */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--color-accent-subtle) 2px,
+      var(--color-accent-subtle) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      var(--color-accent-subtle) 2px,
+      var(--color-accent-subtle) 4px
+    );
+  background-size:
+    200px 1px,
+    400px 1px,
+    1px 200px,
+    1px 400px,
+    100px 100px,
+    100px 100px;
+  background-position:
+    0 0,
+    0 50px,
+    0 0,
+    50px 0,
+    0 0,
+    0 0;
+  opacity: 0.15;
+  z-index: 0;
+  mix-blend-mode: normal;
+}
+
+/* Subtle wiring pattern overlay */
+.wiring-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background-image: 
+    /* Organic curved paths inspired by circuit traces */
+    radial-gradient(ellipse 800px 400px at 20% 30%, var(--color-accent-muted) 0%, transparent 50%),
+    radial-gradient(ellipse 600px 300px at 80% 70%, var(--color-accent-muted) 0%, transparent 50%),
+    radial-gradient(ellipse 400px 500px at 50% 50%, var(--color-accent-muted) 0%, transparent 50%);
+  opacity: 0.08;
+  z-index: 0;
+  mix-blend-mode: normal;
 }
 
 .globe-wrapper {
@@ -141,24 +235,30 @@ button {
 .cursor-ring {
   position: fixed;
   pointer-events: none;
-  transition: transform 180ms ease, opacity 180ms ease;
+  top: 0;
+  left: 0;
+  will-change: transform;
   z-index: 9999;
+  /* Transform handled in JS for smooth performance */
 }
 
 .custom-cursor {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: var(--color-text);
-  transform: translate(-50%, -50%);
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent-muted);
+  /* Centering handled in JS transform */
 }
 
 .cursor-ring {
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--color-accent);
   border-radius: 999px;
-  transform: translate(-50%, -50%);
+  opacity: 0.6;
+  /* Centering handled in JS transform */
+  transition: opacity 180ms ease;
 }
 
 .cursor-hidden {
@@ -166,13 +266,15 @@ button {
 }
 
 .activity-bg {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   filter: saturate(1.2) contrast(1.05);
-  z-index: -2;
+  z-index: -1;
   mix-blend-mode: screen;
+  transition: opacity 0.6s ease-out;
 }
 
 .activity-bg-sports {
@@ -195,7 +297,28 @@ button {
 
 .focus-ring:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 18px rgba(126, 231, 135, 0.25);
+  box-shadow: 0 0 0 18px var(--color-accent-muted);
+}
+
+/* Subtle divider accent */
+.divider-accent {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-accent-subtle) 20%,
+    var(--color-accent-subtle) 80%,
+    transparent
+  );
+}
+
+/* Micro-element accent dots */
+.accent-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {

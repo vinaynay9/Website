@@ -8,15 +8,15 @@ type SectionHeaderProps = {
 
 export function SectionHeader({ eyebrow, title, description }: SectionHeaderProps) {
   return (
-    <div className="max-w-2xl space-y-2">
+    <div className="max-w-2xl space-y-4">
       {eyebrow && (
-        <p className="text-xs uppercase tracking-[0.5em] text-muted">{eyebrow}</p>
+        <p className="text-xs uppercase tracking-[0.5em] text-muted/90">{eyebrow}</p>
       )}
-      <h2 className="text-4xl font-semibold uppercase tracking-[0.2em]">
+      <h2 className="text-4xl font-semibold uppercase tracking-[0.2em] leading-tight">
         {title}
       </h2>
       {description && (
-        <p className="text-sm text-muted/80">{description}</p>
+        <p className="text-sm text-muted/90 leading-relaxed">{description}</p>
       )}
     </div>
   );

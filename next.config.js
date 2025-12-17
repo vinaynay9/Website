@@ -9,7 +9,7 @@ const nextConfig = {
         hostname: "images.unsplash.com"
       }
     ]
-  }
+  },
 
   // IMPORTANT:
   // Do NOT override webpack cache in Next.js 14.

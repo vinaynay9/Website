@@ -1,0 +1,19 @@
+<svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8c63dc;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#7ee787;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#grad2)"/>
+  <rect x="40" y="40" width="560" height="280" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(140,99,220,0.3)" stroke-width="1"/>
+  <rect x="80" y="80" width="120" height="80" rx="8" fill="rgba(140,99,220,0.2)"/>
+  <rect x="220" y="80" width="120" height="80" rx="8" fill="rgba(126,231,135,0.15)"/>
+  <rect x="360" y="80" width="120" height="80" rx="8" fill="rgba(140,99,220,0.15)"/>
+  <rect x="80" y="180" width="480" height="8" rx="4" fill="rgba(140,99,220,0.2)"/>
+  <rect x="80" y="210" width="400" height="8" rx="4" fill="rgba(126,231,135,0.15)"/>
+  <rect x="80" y="240" width="440" height="8" rx="4" fill="rgba(140,99,220,0.1)"/>
+  <circle cx="560" cy="280" r="20" fill="rgba(140,99,220,0.3)"/>
+  <path d="M 550 280 L 558 288 L 570 270" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+

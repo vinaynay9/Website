@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type CursorType = "default" | "link" | "reveal" | "modal";
 
@@ -68,21 +68,26 @@ export default function Cursor({ type, hidden }: CursorProps) {
   if (!enabled) return null;
 
   const ringScale = type === "link" ? 1.5 : type === "modal" ? 1.35 : type === "reveal" ? 1.25 : 1;
-  const ringOpacity = type === "modal" ? 0.45 : 1;
+  const ringOpacity = type === "modal" ? 0.45 : type === "link" ? 0.8 : 1;
   const dotScale = type === "modal" ? 1.3 : 1;
+
+  // Cursor dot is 10px (5px radius), ring is 44px (22px radius)
+  // We need to center them by subtracting half their size
+  const dotOffset = 5;
+  const ringOffset = 22;
 
   return (
     <>
       <div
         className={`custom-cursor ${hidden ? "cursor-hidden" : ""}`}
         style={{
-          transform: `translate3d(${position.x}px, ${position.y}px, 0) scale(${dotScale})`
+          transform: `translate3d(${position.x - dotOffset}px, ${position.y - dotOffset}px, 0) scale(${dotScale})`
         }}
       />
       <div
         className="cursor-ring"
         style={{
-          transform: `translate3d(${ringPosition.x}px, ${ringPosition.y}px, 0) scale(${ringScale})`,
+          transform: `translate3d(${ringPosition.x - ringOffset}px, ${ringPosition.y - ringOffset}px, 0) scale(${ringScale})`,
           opacity: ringOpacity
         }}
       />

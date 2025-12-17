@@ -5,11 +5,21 @@ const tokens = {
     muted: "#111111",
     border: "rgba(255,255,255,0.08)",
     text: "#f5f5f0",
-    accent: "#7ee787",
-    accentSoft: "#43f0d7",
+    accent: "#2d5a3d",
+    accentSoft: "#4a7c5a",
+    accentLight: "#5a8a6a",
+    accentMuted: "rgba(45, 90, 61, 0.4)",
+    accentSubtle: "rgba(45, 90, 61, 0.15)",
     travel: "#0f3d6b",
     activity: "#a55f2d",
-    music: "#8c63dc"
+    music: "#8c63dc",
+    lavenderDark: "#2d1f3d",
+    lavenderBase: "#4a3a5a",
+    lavenderSoft: "#6b5a7a",
+    lavenderLight: "#8b7a9a",
+    lavenderMuted: "rgba(107, 90, 122, 0.4)",
+    lavenderSubtle: "rgba(107, 90, 122, 0.15)",
+    lavenderAccent: "#9d8bb3"
   },
   spacing: {
     4: "1rem",
@@ -62,8 +72,19 @@ module.exports = {
         long: tokens.motion.durations.long
       },
       fontFamily: {
-        display: ["Clash Display", "sans-serif"],
-        body: ["Inter", "sans-serif"]
+        // Fun/comic fonts for accents
+        bungee: ["var(--font-bungee)", "sans-serif"],
+        fredoka: ["var(--font-fredoka)", "sans-serif"],
+        // TODO: Temporarily removed font families for stability - restore when font fetch issues are resolved
+        // "bungee-inline": ["var(--font-bungee-inline)", "sans-serif"],
+        // "bungee-shade": ["var(--font-bungee-shade)", "sans-serif"],
+        // "permanent-marker": ["var(--font-permanent-marker)", "sans-serif"],
+        // righteous: ["var(--font-righteous)", "sans-serif"],
+        // "rubik-glitch": ["var(--font-rubik-glitch)", "sans-serif"],
+        // Body and headers (friendly, modern)
+        body: ["var(--font-space-grotesk)", "var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       }
     }
   },

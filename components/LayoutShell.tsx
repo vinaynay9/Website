@@ -49,7 +49,9 @@ function LayoutContent({ children }: LayoutShellProps) {
   return (
     <div className="relative min-h-screen bg-background text-text">
       <div className="noise-layer" aria-hidden />
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 px-6 py-5 backdrop-blur-sm">
+      <div className="circuit-texture" aria-hidden />
+      <div className="wiring-overlay" aria-hidden />
+      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 px-6 py-5 backdrop-blur-sm transition-colors hover:border-accent/30">
         <div className="mx-auto flex max-w-6xl items-center justify-between text-xs uppercase tracking-[0.4em]">
           <Link href="/" {...hoverable} className="text-sm tracking-[0.65em]">
             Vinay
@@ -63,12 +65,13 @@ function LayoutContent({ children }: LayoutShellProps) {
           </nav>
         </div>
       </header>
-      <main className="relative z-10 px-6 py-10">{children}</main>
-      <footer className="border-t border-border/40 px-6 py-8 text-[0.65rem] uppercase tracking-[0.4em]">
+      {/* Increased vertical padding (py-12) for better top/bottom breathing room */}
+      <main className="relative z-10 px-6 py-12">{children}</main>
+      <footer className="border-t border-border/40 px-6 py-8 text-[0.65rem] uppercase tracking-[0.4em] transition-colors hover:border-accent/30">
         <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-4 text-muted">
           <div className="flex flex-wrap gap-4">
             {footerLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-text" {...hoverable}>
+              <Link key={link.href} href={link.href} className="transition-colors hover:text-accent/80" {...hoverable}>
                 {link.label}
               </Link>
             ))}

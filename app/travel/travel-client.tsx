@@ -8,7 +8,7 @@ import { Modal } from "@/components/Modal";
 import { ParallaxLayer } from "@/components/motion/ParallaxLayer";
 import { ScrollScene } from "@/components/motion/ScrollScene";
 import { SectionHeader } from "@/components/SectionHeader";
-import { travelLog, type TravelCountry, visitedCountries } from "@/data/travel";
+import { travelLog, type TravelCountry, visitedCountries, countryNameMap } from "@/data/travel";
 
 const GlobeFallback = ({ message }: { message: string }) => (
   <div className="globe-fallback-panel">
@@ -30,7 +30,9 @@ const GlobeDisplay = dynamic(
     import("@/components/GlobeDisplay")
       .then((mod) => mod.GlobeDisplay)
       .catch((error) => {
-        console.error("Globe failed to load", error);
+        if (process.env.NODE_ENV === "development") {
+          console.error("Globe failed to load", error);
+        }
         return () => <GlobeFallback message="Interactive globe coming soon" />;
       }),
   {
@@ -38,6 +40,38 @@ const GlobeDisplay = dynamic(
     loading: () => <GlobeFallback message="Loading globe…" />
   }
 );
+
+// Helper to find country in travel log by name (handles name variations)
+const findCountryByName = (name: string): TravelCountry | undefined => {
+  const normalized = name.toLowerCase();
+  
+  // Direct match
+  let match = travelLog.find(
+    (country) => country.name.toLowerCase() === normalized
+  );
+  
+  if (match) return match;
+  
+  // Check if name matches a mapped value (e.g., "United States" from "United States of America")
+  const mappedKey = Object.entries(countryNameMap).find(
+    ([_, value]) => value.toLowerCase() === normalized
+  )?.[0];
+  
+  if (mappedKey) {
+    match = travelLog.find(
+      (country) => country.name.toLowerCase() === mappedKey.toLowerCase()
+    );
+  }
+  
+  // Check reverse: if name is a key in countryNameMap, find by its value
+  if (!match && countryNameMap[name]) {
+    match = travelLog.find(
+      (country) => country.name.toLowerCase() === countryNameMap[name].toLowerCase()
+    );
+  }
+  
+  return match;
+};
 
 export default function TravelClient() {
   const [highlightedCountry, setHighlightedCountry] = useState<TravelCountry | null>(null);
@@ -65,10 +99,8 @@ export default function TravelClient() {
               <GlobeDisplay
                 visited={visitedCountries}
                 onCountrySelect={(name) => {
-                  const match = travelLog.find(
-                    (country) => country.name.toLowerCase() === name.toLowerCase()
-                  );
-                  openModal(match ?? undefined);
+                  const match = findCountryByName(name);
+                  openModal(match);
                 }}
               />
             </ParallaxLayer>

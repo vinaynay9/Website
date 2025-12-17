@@ -2,7 +2,7 @@ import MusicClient from "./music-client";
 
 export const metadata = {
   title: "Music · Vinay",
-  description: "Instruments, playlists, and musical theater glimpses."
+  description: "A curated music shelf of albums that shape the soundtrack of my days."
 };
 
 export default function Page() {

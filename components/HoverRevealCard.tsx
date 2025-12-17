@@ -25,7 +25,7 @@ export function HoverRevealCard({ panel, onReveal }: HoverRevealCardProps) {
       onMouseLeave={handleReset}
       onFocus={handleHover}
       onBlur={handleReset}
-      className="group relative h-64 w-full overflow-hidden rounded-[24px] border border-border/60 bg-surface text-left shadow-soft"
+      className="group relative h-64 w-full overflow-hidden rounded-[24px] border border-border/60 bg-surface text-left shadow-soft transition-colors hover:border-accent/40"
       whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 180, damping: 16 }}
     >

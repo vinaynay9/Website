@@ -1,4 +1,5 @@
 import { LayoutShell } from "@/components/LayoutShell";
+import { fontVariables } from "@/lib/fonts";
 import "@/styles/globals.css";
 
 export const metadata = {
@@ -17,7 +18,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={fontVariables}>
       <body>
         <LayoutShell>{children}</LayoutShell>
       </body>
