@@ -1,0 +1,32 @@
+<svg width="120" height="48" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Playful handwritten-style "V" with personality -->
+  <g id="logo">
+    <!-- "V" with a dynamic swoosh -->
+    <path d="M8 8 L24 38 L40 8" 
+          stroke="currentColor" 
+          stroke-width="4" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          fill="none"/>
+    
+    <!-- Small accent dot (like a signature mark) -->
+    <circle cx="24" cy="42" r="2.5" fill="currentColor" opacity="0.7"/>
+    
+    <!-- Subtle underline swoosh -->
+    <path d="M6 45 Q24 43 42 45" 
+          stroke="currentColor" 
+          stroke-width="1.5" 
+          stroke-linecap="round" 
+          fill="none" 
+          opacity="0.5"/>
+    
+    <!-- Text "inay" in a clean modern style -->
+    <text x="45" y="32" 
+          font-family="system-ui, sans-serif" 
+          font-size="24" 
+          font-weight="500" 
+          fill="currentColor" 
+          letter-spacing="1">inay</text>
+  </g>
+</svg>
+

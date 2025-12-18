@@ -20,7 +20,7 @@ export const footerSocials: FooterLink[] = [
 ];
 
 export const footerProjects: FooterLink[] = [
-  { href: "/projects#this-website", label: "This Website" },
+  { href: "/projects#this-website", label: "My Story" },
   { href: "/projects#read-the-field", label: "ReadTheField" },
   { href: "/projects#anchor", label: "Anchor" },
 ];

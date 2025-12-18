@@ -1,31 +1,31 @@
 /**
  * Self-Hosted Font System
  * 
- * All fonts are loaded locally from /public/fonts/ to avoid runtime Google Fonts downloads.
+ * All fonts are loaded locally from /public../public/fonts/ to avoid runtime Google Fonts downloads.
  * This prevents ETIMEDOUT errors and ensures the dev server remains stable.
  * 
  * PATH RULES (CRITICAL - DO NOT BREAK):
  * ======================================
- * 1. Font files MUST live in /public/fonts/ at project root
+ * 1. Font files MUST live in /public../public/fonts/ at project root
  * 2. Paths in next/font/local are relative to PROJECT ROOT (not this file)
- * 3. Use "./public/fonts/..." format (relative to project root)
- * 4. DO NOT use "../public/fonts/..." (that's relative to lib/fonts.ts - WRONG)
- * 5. DO NOT use "/public/fonts/..." (absolute paths don't work in next/font/local)
+ * 3. Use "../public/fonts/..." format (relative to project root)
+ * 4. DO NOT use ".../public/fonts/..." (that's relative to lib/fonts.ts - WRONG)
+ * 5. DO NOT use "/public../public/fonts/..." (absolute paths don't work in next/font/local)
  * 6. Folder names use PascalCase: Inter/, SpaceGrotesk/, etc.
  * 7. File names use PascalCase: Inter-Regular.woff2, SpaceGrotesk-SemiBold.woff2
  * 
  * Example correct path:
- *   path: "./public/fonts/Inter/Inter-Regular.woff2"
+ *   path: "../public/fonts/Inter/Inter-Regular.woff2"
  * 
  * Example WRONG paths:
- *   path: "../public/fonts/..." ❌ (relative to lib/fonts.ts)
- *   path: "/public/fonts/..." ❌ (absolute path)
- *   path: "public/fonts/..." ❌ (missing ./ prefix)
- *   path: "./public/fonts/inter/inter-regular.woff2" ❌ (wrong case)
+ *   path: ".../public/fonts/..." ❌ (relative to lib/fonts.ts)
+ *   path: "/public../public/fonts/..." ❌ (absolute path)
+ *   path: "public../public/fonts/..." ❌ (missing ./ prefix)
+ *   path: "../public/fonts/inter/inter-regular.woff2" ❌ (wrong case)
  * 
  * To add fonts:
  * 1. Download font files from Google Fonts (see docs/fonts.md)
- * 2. Place .woff2 files in /public/fonts/{FontName}/ (PascalCase folder)
+ * 2. Place .woff2 files in /public../public/fonts/{FontName}/ (PascalCase folder)
  * 3. Rename files to PascalCase: {FontName}-{WeightName}.woff2
  * 4. Add font definition below using next/font/local
  * 5. Export the font variable
@@ -33,7 +33,7 @@
  * 7. Run: npm run verify-fonts
  * 
  * To remove fonts:
- * 1. Remove font folder from /public/fonts/
+ * 1. Remove font folder from /public../public/fonts/
  * 2. Remove font definition below
  * 3. Remove references in components
  * 4. Run: npm run verify-fonts
@@ -46,18 +46,8 @@ import localFont from "next/font/local";
 export const inter = localFont({
   src: [
     {
-      path: "./public/fonts/Inter/Inter-Regular.woff2",
+      path: "../public/fonts/Inter/Inter-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Inter/Inter-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Inter/Inter-Bold.woff2",
-      weight: "700",
       style: "normal",
     },
   ],
@@ -69,18 +59,8 @@ export const inter = localFont({
 export const spaceGrotesk = localFont({
   src: [
     {
-      path: "./public/fonts/SpaceGrotesk/SpaceGrotesk-Regular.woff2",
+      path: "../public/fonts/SpaceGrotesk/SpaceGrotesk-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/SpaceGrotesk/SpaceGrotesk-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/SpaceGrotesk/SpaceGrotesk-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -94,7 +74,7 @@ export const spaceGrotesk = localFont({
 export const bungee = localFont({
   src: [
     {
-      path: "./public/fonts/Bungee/Bungee-Regular.woff2",
+      path: "../public/fonts/Bungee/Bungee-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -107,7 +87,7 @@ export const bungee = localFont({
 export const fredoka = localFont({
   src: [
     {
-      path: "./public/fonts/Fredoka/Fredoka-Regular.woff2",
+      path: "../public/fonts/Fredoka/Fredoka-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -120,7 +100,7 @@ export const fredoka = localFont({
 export const righteous = localFont({
   src: [
     {
-      path: "./public/fonts/Righteous/Righteous-Regular.woff2",
+      path: "../public/fonts/Righteous/Righteous-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -133,7 +113,7 @@ export const righteous = localFont({
 export const permanentMarker = localFont({
   src: [
     {
-      path: "./public/fonts/PermanentMarker/PermanentMarker-Regular.woff2",
+      path: "../public/fonts/PermanentMarker/PermanentMarker-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -148,18 +128,8 @@ export const permanentMarker = localFont({
 export const playfairDisplay = localFont({
   src: [
     {
-      path: "./public/fonts/PlayfairDisplay/PlayfairDisplay-Regular.woff2",
+      path: "../public/fonts/PlayfairDisplay/PlayfairDisplay-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/PlayfairDisplay/PlayfairDisplay-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/PlayfairDisplay/PlayfairDisplay-Bold.woff2",
-      weight: "700",
       style: "normal",
     },
   ],
@@ -171,18 +141,8 @@ export const playfairDisplay = localFont({
 export const cinzel = localFont({
   src: [
     {
-      path: "./public/fonts/Cinzel/Cinzel-Regular.woff2",
+      path: "../public/fonts/Cinzel/Cinzel-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Cinzel/Cinzel-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Cinzel/Cinzel-Bold.woff2",
-      weight: "700",
       style: "normal",
     },
   ],
@@ -194,7 +154,7 @@ export const cinzel = localFont({
 export const bebasNeue = localFont({
   src: [
     {
-      path: "./public/fonts/BebasNeue/BebasNeue-Regular.woff2",
+      path: "../public/fonts/BebasNeue/BebasNeue-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -207,18 +167,8 @@ export const bebasNeue = localFont({
 export const oswald = localFont({
   src: [
     {
-      path: "./public/fonts/Oswald/Oswald-Regular.woff2",
+      path: "../public/fonts/Oswald/Oswald-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Oswald/Oswald-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Oswald/Oswald-Bold.woff2",
-      weight: "700",
       style: "normal",
     },
   ],
@@ -230,7 +180,7 @@ export const oswald = localFont({
 export const blackOpsOne = localFont({
   src: [
     {
-      path: "./public/fonts/BlackOpsOne/BlackOpsOne-Regular.woff2",
+      path: "../public/fonts/BlackOpsOne/BlackOpsOne-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -245,13 +195,8 @@ export const blackOpsOne = localFont({
 export const dancingScript = localFont({
   src: [
     {
-      path: "./public/fonts/DancingScript/DancingScript-Regular.woff2",
+      path: "../public/fonts/DancingScript/DancingScript-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/DancingScript/DancingScript-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -263,7 +208,7 @@ export const dancingScript = localFont({
 export const greatVibes = localFont({
   src: [
     {
-      path: "./public/fonts/GreatVibes/GreatVibes-Regular.woff2",
+      path: "../public/fonts/GreatVibes/GreatVibes-Regular.woff2",
       weight: "400",
       style: "normal",
     },
@@ -276,13 +221,8 @@ export const greatVibes = localFont({
 export const caveat = localFont({
   src: [
     {
-      path: "./public/fonts/Caveat/Caveat-Regular.woff2",
+      path: "../public/fonts/Caveat/Caveat-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Caveat/Caveat-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -294,13 +234,8 @@ export const caveat = localFont({
 export const kalam = localFont({
   src: [
     {
-      path: "./public/fonts/Kalam/Kalam-Regular.woff2",
+      path: "../public/fonts/Kalam/Kalam-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/Kalam/Kalam-Bold.woff2",
-      weight: "700",
       style: "normal",
     },
   ],
@@ -314,13 +249,8 @@ export const kalam = localFont({
 export const notoSansJP = localFont({
   src: [
     {
-      path: "./public/fonts/NotoSansJP/NotoSansJP-Regular.woff2",
+      path: "../public/fonts/NotoSansJP/NotoSansJP-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/NotoSansJP/NotoSansJP-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -332,13 +262,8 @@ export const notoSansJP = localFont({
 export const notoSansSC = localFont({
   src: [
     {
-      path: "./public/fonts/NotoSansSC/NotoSansSC-Regular.woff2",
+      path: "../public/fonts/NotoSansSC/NotoSansSC-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/NotoSansSC/NotoSansSC-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -350,13 +275,8 @@ export const notoSansSC = localFont({
 export const notoSansDevanagari = localFont({
   src: [
     {
-      path: "./public/fonts/NotoSansDevanagari/NotoSansDevanagari-Regular.woff2",
+      path: "../public/fonts/NotoSansDevanagari/NotoSansDevanagari-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/NotoSansDevanagari/NotoSansDevanagari-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],
@@ -368,13 +288,8 @@ export const notoSansDevanagari = localFont({
 export const notoSansArabic = localFont({
   src: [
     {
-      path: "./public/fonts/NotoSansArabic/NotoSansArabic-Regular.woff2",
+      path: "../public/fonts/NotoSansArabic/NotoSansArabic-Regular.woff2",
       weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./public/fonts/NotoSansArabic/NotoSansArabic-SemiBold.woff2",
-      weight: "600",
       style: "normal",
     },
   ],

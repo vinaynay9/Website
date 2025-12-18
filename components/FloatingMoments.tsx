@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useAnimationFrame, useMotionValue } from "framer-motion";
 import { useRef, useState, useMemo, useCallback } from "react";
 
 type FloatingMomentProps = {
@@ -14,16 +14,23 @@ type FloatingMomentProps = {
   momentText: string;
   delay?: number;
   isMobile?: boolean;
+  floatOffset?: number; // Unique offset for staggered floating animation
+  rotationRange?: number; // Subtle rotation variance per image
 };
 
 // Memoized animation variants
 const initialVariant = { opacity: 0, scale: 0.85, y: 20 } as const;
 const animateVariant = { opacity: 1, scale: 1, y: 0 } as const;
-const whileHoverVariant = { scale: 1.08, transition: { duration: 0.3 } as const } as const;
-const textInitialVariant = { opacity: 0, scale: 0.95 } as const;
-const textTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
-const imageTransitionConfig = { duration: 0.4, ease: [0.19, 1, 0.22, 1] as const } as const;
 
+/**
+ * FloatingMoment Component
+ * 
+ * Features:
+ * - Idle animation: Gentle floating (y-axis) and subtle rotation
+ * - Hover interaction: 3D flip effect reveals text on the back
+ * - Performance optimized: Uses Framer Motion's useAnimationFrame for smooth idle animations
+ * - No continuous re-renders: Animation values derived from time, not state
+ */
 function FloatingMoment({
   src,
   alt,
@@ -33,26 +40,45 @@ function FloatingMoment({
   scrollProgress,
   momentText,
   delay = 0,
-  isMobile = false
+  isMobile = false,
+  floatOffset = 0,
+  rotationRange = 3
 }: FloatingMomentProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  
+  // Motion values for smooth idle animation (no re-renders)
+  const floatY = useMotionValue(0);
+  const floatRotation = useMotionValue(0);
+  
+  // Parallax based on scroll
   const yOffset = useTransform(scrollProgress, [0, 1], [0, parallaxSpeed]);
-  const scale = useTransform(scrollProgress, [0, 0.5, 1], [1, 1.05, 1]);
+
+  // Idle animation: Gentle floating + rotation
+  // Uses useAnimationFrame for smooth, continuous motion without re-renders
+  // Motion values update the DOM directly without triggering React re-renders
+  useAnimationFrame((time) => {
+    // Convert time to seconds and add unique offset for staggered animation
+    const t = (time / 1000) + floatOffset;
+    
+    // Gentle sine wave for floating (±8px over 4 seconds)
+    floatY.set(Math.sin(t * 0.5) * 8);
+    
+    // Subtle rotation (±3 degrees over 6 seconds)
+    floatRotation.set(Math.sin(t * 0.3) * rotationRange);
+  });
 
   const containerStyle = useMemo(
     () =>
       isMobile
         ? {
-            y: yOffset,
-            scale
+            y: yOffset
           }
         : {
             left: x,
             top: y,
-            y: yOffset,
-            scale
+            y: yOffset
           },
-    [isMobile, x, y, yOffset, scale]
+    [isMobile, x, y, yOffset]
   );
 
   const transitionConfig = useMemo(
@@ -60,25 +86,9 @@ function FloatingMoment({
     [delay]
   );
 
-  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
-  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
-  const handleTouchStart = useCallback(() => setIsHovered(true), []);
-  const handleTouchEnd = useCallback(() => setIsHovered(false), []);
-
-  const textAnimateVariant = useMemo(
-    () => ({
-      opacity: isHovered ? 1 : 0,
-      scale: isHovered ? 1 : 0.95
-    }),
-    [isHovered]
-  );
-
-  const imageAnimateVariant = useMemo(
-    () => ({
-      opacity: isHovered ? 0 : 1
-    }),
-    [isHovered]
-  );
+  const handleMouseEnter = useCallback(() => setIsFlipped(true), []);
+  const handleMouseLeave = useCallback(() => setIsFlipped(false), []);
+  const handleTouchStart = useCallback(() => setIsFlipped(prev => !prev), []);
 
   return (
     <motion.div
@@ -90,36 +100,45 @@ function FloatingMoment({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      whileHover={whileHoverVariant}
     >
-      <div className="relative group">
-        {/* Text behind the image with improved backdrop */}
+      {/* 3D flip container with idle animation */}
+      <motion.div
+        className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mx-auto"
+        style={{
+          perspective: "1000px",
+          transformStyle: "preserve-3d",
+          // Apply idle animation via style (motion values) for performance
+          y: isFlipped ? 0 : floatY,
+          rotateZ: isFlipped ? 0 : floatRotation
+        }}
+        animate={{
+          // Lift and scale slightly on hover
+          scale: isFlipped ? 1.05 : 1
+        }}
+        transition={{
+          scale: { duration: 0.4, ease: [0.19, 1, 0.22, 1] }
+        }}
+      >
+        {/* Card inner - flips on hover */}
         <motion.div
-          className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none"
-          initial={textInitialVariant}
-          animate={textAnimateVariant}
-          transition={textTransitionConfig}
+          className="relative w-full h-full"
+          style={{
+            transformStyle: "preserve-3d"
+          }}
+          animate={{
+            rotateY: isFlipped ? 180 : 0
+          }}
+          transition={{
+            duration: 0.6,
+            ease: [0.19, 1, 0.22, 1]
+          }}
         >
-          <div className="px-4 py-3 sm:px-6 sm:py-4 max-w-[200px] sm:max-w-[240px] md:max-w-[300px] lg:max-w-[340px] text-center bg-white/98 backdrop-blur-md rounded-xl shadow-2xl border border-white/20">
-            <p className="text-[11px] sm:text-xs md:text-sm lg:text-base font-mono text-[#2d5a3d] leading-relaxed">
-              {momentText}
-            </p>
-          </div>
-        </motion.div>
-        
-        {/* Image that fades on hover - 30% larger */}
-        <motion.div
-          className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 z-10 mx-auto"
-          initial={{ opacity: 1 }}
-          animate={imageAnimateVariant}
-          transition={imageTransitionConfig}
-        >
-          <div 
-            className="relative w-full h-full rounded-lg overflow-hidden border-2 transition-colors duration-300"
-            style={{ 
-              borderColor: isHovered ? '#2d5a3d' : 'transparent',
-              boxShadow: isHovered ? '0 0 0 2px #2d5a3d' : 'none'
+          {/* Front face - Image */}
+          <div
+            className="absolute inset-0 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+            style={{
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden"
             }}
           >
             <Image
@@ -130,8 +149,22 @@ function FloatingMoment({
               sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, (max-width: 1024px) 208px, 256px"
             />
           </div>
+
+          {/* Back face - Text content */}
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/98 backdrop-blur-md shadow-2xl border-2 border-[#2d5a3d]/30 p-4"
+            style={{
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              transform: "rotateY(180deg)"
+            }}
+          >
+            <p className="text-[10px] sm:text-[11px] md:text-xs lg:text-sm font-mono text-[#2d5a3d] leading-relaxed text-center">
+              {momentText}
+            </p>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -185,19 +218,31 @@ export function FloatingMoments({ containerRef }: FloatingMomentsProps = {}) {
     }
   ];
 
-  // Responsive positions - using CSS classes for mobile/desktop differences
-  // Desktop: spaced collage style with reduced overlaps
+  /**
+   * Desktop Layout: Cinematic layering with breathing room
+   * 
+   * Positioning strategy:
+   * - Expanded vertical space (130vh) prevents cramped feeling
+   * - Images spread across depth layers (foreground, mid, background)
+   * - Strategic positioning reduces overlap while maintaining depth
+   * - Left/right balance creates visual rhythm
+   * - Vertical spacing ensures no images hide completely behind others
+   */
   const desktopPositions = [
-    { x: "5%", y: "8%" },
-    { x: "65%", y: "12%" },
-    { x: "12%", y: "45%" },
-    { x: "70%", y: "40%" },
-    { x: "40%", y: "20%" },
-    { x: "20%", y: "70%" },
-    { x: "75%", y: "65%" }
+    { x: "8%", y: "5%" },    // Top-left, foreground
+    { x: "68%", y: "8%" },   // Top-right, slightly back
+    { x: "38%", y: "18%" },  // Center-top, mid-layer
+    { x: "15%", y: "38%" },  // Mid-left, breathing room from top
+    { x: "62%", y: "42%" },  // Mid-right, staggered from left
+    { x: "32%", y: "58%" },  // Lower-center, clear of mid images
+    { x: "72%", y: "68%" }   // Bottom-right, final anchor
   ];
   
-  // Mobile: neat stacked grid with proper spacing
+  /**
+   * Mobile Layout: Clean grid with ample spacing
+   * - Grid ensures consistent spacing
+   * - No absolute positioning needed
+   */
   const mobilePositions = [
     { x: "5%", y: "3%" },
     { x: "50%", y: "12%" },
@@ -213,12 +258,16 @@ export function FloatingMoments({ containerRef }: FloatingMomentsProps = {}) {
       ref={sectionRef}
       className="relative w-full"
     >
-      {/* Desktop: absolute positioned collage */}
-      <div className="hidden md:block relative w-full max-w-7xl mx-auto h-[85vh] px-4">
+      {/* Desktop: absolute positioned collage with expanded height for breathing room */}
+      <div className="hidden md:block relative w-full max-w-7xl mx-auto h-[130vh] px-4">
         {moments.map((moment, idx) => {
           const desktopPos = desktopPositions[idx % desktopPositions.length];
-          // Alternate parallax directions for visual interest
-          const parallaxSpeed = idx % 2 === 0 ? 40 : -40;
+          // Alternate parallax directions for visual depth
+          const parallaxSpeed = idx % 2 === 0 ? 50 : -50;
+          // Staggered float timing for organic feel
+          const floatOffset = idx * 1.3;
+          // Varied rotation ranges for character
+          const rotationRange = 2 + (idx % 3);
           
           return (
             <FloatingMoment
@@ -231,16 +280,20 @@ export function FloatingMoments({ containerRef }: FloatingMomentsProps = {}) {
               scrollProgress={sectionProgress}
               momentText={moment.momentText}
               delay={idx * 0.1}
+              floatOffset={floatOffset}
+              rotationRange={rotationRange}
             />
           );
         })}
       </div>
       
-      {/* Mobile: neat stacked grid */}
+      {/* Mobile: neat stacked grid with proper spacing */}
       <div className="block md:hidden relative w-full max-w-2xl mx-auto px-4 py-8">
         <div className="grid grid-cols-2 gap-8 sm:gap-10">
           {moments.map((moment, idx) => {
-            const parallaxSpeed = idx % 2 === 0 ? 20 : -20;
+            const parallaxSpeed = idx % 2 === 0 ? 25 : -25;
+            const floatOffset = idx * 1.3;
+            const rotationRange = 2 + (idx % 3);
             
             return (
               <FloatingMoment
@@ -252,6 +305,8 @@ export function FloatingMoments({ containerRef }: FloatingMomentsProps = {}) {
                 momentText={moment.momentText}
                 delay={idx * 0.08}
                 isMobile={true}
+                floatOffset={floatOffset}
+                rotationRange={rotationRange}
               />
             );
           })}

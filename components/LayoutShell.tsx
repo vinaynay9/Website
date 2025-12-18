@@ -51,11 +51,17 @@ function LayoutContent({ children }: LayoutShellProps) {
       <div className="circuit-texture" aria-hidden />
       <div className="wiring-overlay" aria-hidden />
       <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 px-6 py-5 backdrop-blur-sm transition-colors hover:border-accent/30">
-        <div className="mx-auto flex max-w-6xl items-center justify-between text-xs uppercase tracking-[0.4em]">
-          <Link href="/" prefetch={true} {...hoverable()} className="text-sm tracking-[0.65em] accent-hover transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <Link 
+            href="/" 
+            prefetch={true} 
+            {...hoverable()} 
+            className="accent-hover transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm text-xl font-medium tracking-wide"
+            style={{ fontFamily: "var(--font-space-grotesk)" }}
+          >
             Vinay
           </Link>
-          <nav className="flex flex-wrap gap-5 text-[0.65rem] tracking-[0.45em]">
+          <nav className="flex flex-wrap gap-5 text-sm">
             {contactLinks.map((link) => (
               <a
                 key={link.href}
@@ -63,7 +69,7 @@ function LayoutContent({ children }: LayoutShellProps) {
                 target={link.href.startsWith("http") ? "_blank" : undefined}
                 rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
                 {...hoverable()}
-                className="accent-hover transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
+                className="nav-link-contact accent-hover transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
               >
                 {link.label}
               </a>
@@ -72,8 +78,8 @@ function LayoutContent({ children }: LayoutShellProps) {
         </div>
       </header>
       {/* Increased vertical padding (py-12) for better top/bottom breathing room */}
-      {/* Added pb-32 to prevent content from being covered by bottom nav and footer */}
-      <main className="relative z-10 px-6 py-12 pb-32">{children}</main>
+      {/* Added pb-24 to account for bottom nav, allowing smooth transition to footer */}
+      <main className="relative z-10 px-6 py-12 pb-24">{children}</main>
       <Footer />
       <BottomNav />
     </div>

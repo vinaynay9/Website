@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useCursor } from "./CursorProvider";
 import { footerPages, footerSocials, footerProjects } from "@/data/footerLinks";
 
@@ -10,6 +11,39 @@ export function Footer() {
   const { setCursorType } = useCursor();
   const router = useRouter();
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+          const currentScrollY = window.scrollY;
+          const scrollBottom = documentHeight - (currentScrollY + windowHeight);
+
+          // Footer becomes visible when approaching bottom (within 150px)
+          const shouldBeVisible = scrollBottom < 150;
+          setIsVisible(shouldBeVisible);
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   const hoverable = useCallback(() => ({
     onMouseEnter: () => setCursorType("link"),
@@ -35,15 +69,44 @@ export function Footer() {
 
   const sectionHeaderClassName = "mb-5 text-[0.65rem] font-medium uppercase tracking-[0.5em] text-muted/80 relative pb-2";
 
+  // Animation variants for staggered children
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.4, 0.0, 0.2, 1],
+      },
+    },
+  };
+
   return (
-    <footer className="relative border-t border-border bg-gradient-to-b from-background via-background to-background/95 px-6 pt-16 pb-20 text-xs uppercase tracking-[0.4em]">
+    <footer className="relative border-t border-border bg-gradient-to-b from-background via-background to-background/95 px-6 pt-16 pb-24 text-xs uppercase tracking-[0.4em]">
       {/* Subtle gradient overlay */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent opacity-30" />
       
-      <div className="relative mx-auto max-w-6xl">
+      <motion.div
+        className="relative mx-auto max-w-6xl"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isVisible ? "visible" : "hidden"}
+      >
         <div className="grid grid-cols-1 gap-12 sm:gap-16 md:grid-cols-2 lg:grid-cols-3">
           {/* Pages Section */}
-          <section>
+          <motion.section variants={sectionVariants}>
             <h3 className={sectionHeaderClassName}>
               Pages
               <span className="absolute bottom-0 left-0 h-px w-12 bg-gradient-to-r from-accent/40 to-transparent" />
@@ -66,10 +129,10 @@ export function Footer() {
                 </Link>
               ))}
             </nav>
-          </section>
+          </motion.section>
 
           {/* Socials Section */}
-          <section>
+          <motion.section variants={sectionVariants}>
             <h3 className={sectionHeaderClassName}>
               Socials
               <span className="absolute bottom-0 left-0 h-px w-12 bg-gradient-to-r from-accent/40 to-transparent" />
@@ -88,10 +151,13 @@ export function Footer() {
                 </a>
               ))}
             </nav>
-          </section>
+          </motion.section>
 
           {/* Projects Section */}
-          <section className="md:col-span-2 lg:col-span-1">
+          <motion.section 
+            variants={sectionVariants}
+            className="md:col-span-2 lg:col-span-1"
+          >
             <h3 className={sectionHeaderClassName}>
               Projects
               <span className="absolute bottom-0 left-0 h-px w-12 bg-gradient-to-r from-accent/40 to-transparent" />
@@ -114,9 +180,9 @@ export function Footer() {
                 </Link>
               ))}
             </nav>
-          </section>
+          </motion.section>
         </div>
-      </div>
+      </motion.div>
     </footer>
   );
 }

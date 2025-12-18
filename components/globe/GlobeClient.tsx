@@ -55,6 +55,8 @@ import worldTopo from "world-atlas/countries-110m.json";
 type GlobeDisplayProps = {
   visited: string[];
   onCountrySelect: (name: string, isVisited: boolean) => void;
+  onCountryHover?: (name: string | null, isVisited: boolean) => void;
+  onGlobeStateChange?: (state: { status: "loading" | "ready" | "error"; error?: string | null }) => void;
   countryNameMap?: Record<string, string>;
 };
 
@@ -135,6 +137,8 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
   const [textureLoaded, setTextureLoaded] = useState(false);
   const [textureLoadError, setTextureLoadError] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [globeMounted, setGlobeMounted] = useState(false);
+  const [globeReady, setGlobeReady] = useState(false);
   
   // Fixed: moved useState for currentTextureUrl to top with other hooks
   // Using lazy initializer with safe fallback to ensure stable initial state
@@ -151,6 +155,7 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
   const animationFrameRef = useRef<number | null>(null);
   const hoverThrottleRef = useRef<number | null>(null);
   const textureLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastHoverNameRef = useRef<string | null>(null);
 
   // Check WebGL support and reduced motion on mount
   useEffect(() => {
@@ -204,30 +209,11 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
     return normalized;
   }, [visited, countryNameMap]);
 
-  // Memoized color functions to avoid creating new functions on every render
-  const visitedColor = "#238636"; // GitHub-style forest green
-  const nonVisitedColor = "rgba(255, 255, 255, 0.1)"; // Muted gray/white
-
-  const getPolygonCapColor = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
-    const name = properties?.name as string | undefined;
-    if (!name) return nonVisitedColor;
-    const normalized = name.toLowerCase();
-    return visitedSet.has(normalized) ? visitedColor : nonVisitedColor;
-  }, [visitedSet, visitedColor, nonVisitedColor]);
-
-  const getPolygonStrokeColor = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
-    const name = properties?.name as string | undefined;
-    if (!name) return "rgba(255,255,255,0.05)";
-    const normalized = name.toLowerCase();
-    return visitedSet.has(normalized) ? "rgba(35, 134, 54, 0.3)" : "rgba(255,255,255,0.05)";
-  }, [visitedSet]);
-
-  const getPolygonAltitude = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
-    const name = properties?.name as string | undefined;
-    if (!name) return 0.005;
-    const normalized = name.toLowerCase();
-    return visitedSet.has(normalized) ? 0.03 : 0.005;
-  }, [visitedSet]);
+  // Helper to get display name for country - MUST be declared before use
+  const getDisplayName = useCallback((countryName: string | undefined): string => {
+    if (!countryName) return "Unknown";
+    return countryNameMap[countryName] || countryName;
+  }, [countryNameMap]);
 
   // Helper to check if country is visited
   const isVisited = useCallback((countryName: string | undefined): boolean => {
@@ -236,11 +222,46 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
     return visitedSet.has(normalized);
   }, [visitedSet]);
 
-  // Helper to get display name for country
-  const getDisplayName = useCallback((countryName: string | undefined): string => {
-    if (!countryName) return "Unknown";
-    return countryNameMap[countryName] || countryName;
-  }, [countryNameMap]);
+  // Memoized color functions to avoid creating new functions on every render
+  const visitedColor = "#238636"; // GitHub-style forest green
+  const nonVisitedColor = "rgba(255, 255, 255, 0.1)"; // Muted gray/white
+
+  const getPolygonCapColor = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
+    const name = properties?.name as string | undefined;
+    if (!name) return nonVisitedColor;
+    const displayName = getDisplayName(name);
+    const normalizedFeature = name.toLowerCase();
+    const normalizedDisplay = displayName.toLowerCase();
+    const isVisitedCountry = visitedSet.has(normalizedFeature) || visitedSet.has(normalizedDisplay);
+    const isHovering = hovered ? hovered.toLowerCase() === normalizedDisplay : false;
+    
+    if (isHovering && isVisitedCountry) return "#2ea043";
+    if (isHovering) return "rgba(255, 255, 255, 0.4)";
+    return isVisitedCountry ? visitedColor : nonVisitedColor;
+  }, [visitedSet, visitedColor, nonVisitedColor, hovered, getDisplayName]);
+
+  const getPolygonStrokeColor = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
+    const name = properties?.name as string | undefined;
+    if (!name) return "rgba(255,255,255,0.05)";
+    const normalized = name.toLowerCase();
+    const displayName = getDisplayName(name).toLowerCase();
+    const isVisitedCountry = visitedSet.has(normalized) || visitedSet.has(displayName);
+    const isHovering = hovered ? hovered.toLowerCase() === displayName : false;
+    if (isHovering && isVisitedCountry) return "rgba(46, 160, 67, 0.65)";
+    if (isHovering) return "rgba(255,255,255,0.25)";
+    return isVisitedCountry ? "rgba(35, 134, 54, 0.3)" : "rgba(255,255,255,0.05)";
+  }, [visitedSet, hovered, getDisplayName]);
+
+  const getPolygonAltitude = useCallback(({ properties }: { properties?: GeoJsonProperties }) => {
+    const name = properties?.name as string | undefined;
+    if (!name) return 0.005;
+    const displayName = getDisplayName(name).toLowerCase();
+    const normalized = name.toLowerCase();
+    const isVisitedCountry = visitedSet.has(normalized) || visitedSet.has(displayName);
+    const isHovering = hovered ? hovered.toLowerCase() === displayName : false;
+    if (isHovering) return 0.06;
+    return isVisitedCountry ? 0.03 : 0.005;
+  }, [visitedSet, hovered, getDisplayName]);
 
   // Throttled hover handler to prevent performance issues
   const handlePolygonHover = useCallback((feature: any) => {
@@ -250,13 +271,24 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
     
     hoverThrottleRef.current = requestAnimationFrame(() => {
       if (feature?.properties?.name) {
-        setHovered(getDisplayName(feature.properties.name as string));
+        const rawName = feature.properties.name as string;
+        const displayName = getDisplayName(rawName);
+        const visited = isVisited(rawName);
+        setHovered(displayName);
+        if (lastHoverNameRef.current !== displayName || !visited) {
+          onCountryHover?.(displayName, visited);
+          lastHoverNameRef.current = displayName;
+        }
       } else {
         setHovered(null);
+        if (lastHoverNameRef.current !== null) {
+          onCountryHover?.(null, false);
+          lastHoverNameRef.current = null;
+        }
       }
       hoverThrottleRef.current = null;
     });
-  }, [getDisplayName]);
+  }, [getDisplayName, isVisited, onCountryHover]);
 
   // Handle resize with ResizeObserver - ensure container has size before init
   useEffect(() => {
@@ -324,9 +356,9 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
         setTextureUrlIndex(nextIndex);
         setCurrentTextureUrl(EARTH_TEXTURE_URLS[nextIndex]);
       } else {
-        // All textures failed, but keep trying with local as fallback
-        debugLog("All textures failed, using local fallback");
-        setTextureLoaded(false);
+        // All textures failed: mark as loaded so UI can proceed with flat shading
+        debugLog("All textures failed, proceeding without texture");
+        setTextureLoaded(true);
       }
     };
 
@@ -350,6 +382,21 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
       }
     };
   }, [currentTextureUrl, textureUrlIndex, mounted, textureLoaded]);
+
+  // Determine ready state once globe mounts and a texture outcome exists
+  useEffect(() => {
+    if (globeMounted && (textureLoaded || textureLoadError)) {
+      setGlobeReady(true);
+    } else {
+      setGlobeReady(false);
+    }
+  }, [globeMounted, textureLoaded, textureLoadError]);
+
+  // Notify parent of globe readiness / error for UI syncing
+  useEffect(() => {
+    const status: "loading" | "ready" | "error" = globeError ? "error" : globeReady ? "ready" : "loading";
+    onGlobeStateChange?.({ status, error: globeError });
+  }, [globeError, globeReady, onGlobeStateChange]);
 
   // Cleanup on unmount - dispose Three.js resources
   useEffect(() => {
@@ -406,15 +453,6 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
       initializedRef.current = false;
     };
   }, []);
-
-  // Not mounted yet
-  if (!mounted) {
-    return (
-      <div className="globe-loading-panel flex min-h-[600px] items-center justify-center">
-        <p className="text-sm uppercase tracking-[0.4em] text-muted">Loading globe…</p>
-      </div>
-    );
-  }
 
   // WebGL not supported
   if (webglSupported === false) {
@@ -494,16 +532,8 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
     );
   }
 
-  // Wait for container size before rendering globe
   const hasValidSize = containerSize.width > 0 && containerSize.height > 0;
-  
-  if (!hasValidSize) {
-    return (
-      <div className="globe-loading-panel flex min-h-[600px] items-center justify-center">
-        <p className="text-sm uppercase tracking-[0.4em] text-muted">Loading globe…</p>
-      </div>
-    );
-  }
+  const shouldRenderGlobe = hasValidSize && mounted;
 
   // Cap devicePixelRatio for performance (max 2, or 1.5 on slower devices)
   const devicePixelRatio = typeof window !== "undefined" 
@@ -521,13 +551,17 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
         isolation: "isolate" // Create new stacking context
       }}
     >
-      {/* Loading overlay while texture loads */}
-      {!textureLoaded && !textureLoadError && (
+      {/* Loading overlay while container measures / texture loads / init */}
+      {(!globeReady || !hasValidSize) && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface/80 backdrop-blur-sm">
-          <div className="text-center">
-            <p className="text-sm uppercase tracking-[0.4em] text-accent mb-2">Loading globe…</p>
+          <div className="text-center space-y-1">
+            <p className="text-sm uppercase tracking-[0.4em] text-accent mb-1">
+              {hasValidSize ? "Loading globe…" : "Sizing globe…"}
+            </p>
             {process.env.NODE_ENV === "development" && (
-              <p className="text-xs text-muted">Texture: {currentTextureUrl}</p>
+              <p className="text-xs text-muted">
+                {textureLoaded ? "Texture ✓" : textureLoadError ? "Texture fallback" : "Waiting texture"}
+              </p>
             )}
           </div>
         </div>
@@ -554,109 +588,113 @@ export function GlobeClient({ visited, onCountrySelect, countryNameMap = {} }: G
         </div>
       )}
       
-      <Globe
-        ref={globeRef}
-        width={containerSize.width}
-        height={containerSize.height}
-        globeImageUrl={currentTextureUrl}
-        backgroundColor="rgba(0, 0, 0, 0)" // Transparent background (matches page)
-        globeGlowColor="rgba(200,220,255,0.3)" // Increased glow to make globe visible
-        globeCloudsOpacity={0}
-        // Reduced atmosphere for performance
-        showAtmosphere={true}
-        atmosphereColor="rgba(150,180,220,0.25)" // Slightly reduced opacity
-        atmosphereAltitude={0.15} // Slightly reduced altitude
-        // Country polygons
-        polygonsData={countries}
-        polygonCapColor={getPolygonCapColor}
-        polygonSideColor="rgba(0,0,0,0.1)"
-        polygonStrokeColor={getPolygonStrokeColor}
-        polygonLabel={({ properties }) => {
-          const name = properties?.name as string | undefined;
-          return getDisplayName(name);
-        }}
-        polygonAltitude={getPolygonAltitude}
-        polygonsTransitionDuration={reducedMotion ? 0 : 300}
-        // Interaction handlers
-        onPolygonHover={handlePolygonHover}
-        onPolygonClick={(feature) => {
-          if (feature?.properties?.name) {
-            const name = feature.properties.name as string;
-            const displayName = getDisplayName(name);
-            const visited = isVisited(name);
-            
-            debugLog("Country clicked", displayName, visited);
-            
-            // Call parent handler
-            onCountrySelect(displayName, visited);
-          }
-        }}
-        // Camera/controls
-        pointOfView={{ lat: 30, lng: 0, altitude: 2 }}
-        enableZoom={true}
-        enablePointerInteraction={true}
-        // Smooth controls configuration
-        onGlobeReady={(globe) => {
-          // Prevent double initialization (React strict mode in dev)
-          if (initializedRef.current) {
-            debugLog("Globe already initialized, skipping");
-            return;
-          }
-
-          try {
-            debugLog("Globe init start");
-            setIsInitializing(true);
-            initializedRef.current = true;
-            globeRef.current = globe;
-            
-            // Configure controls for smooth interaction
-            const controls = globe.controls();
-            if (controls) {
-              // Disable auto-rotate (user controls via drag)
-              controls.autoRotate = false;
+      {shouldRenderGlobe && (
+        <Globe
+          ref={globeRef}
+          width={containerSize.width}
+          height={containerSize.height}
+          globeImageUrl={currentTextureUrl || undefined}
+          backgroundColor="rgba(0, 0, 0, 0)" // Transparent background (matches page)
+          globeGlowColor="rgba(200,220,255,0.3)" // Increased glow to make globe visible
+          globeCloudsOpacity={0}
+          // Reduced atmosphere for performance
+          showAtmosphere={true}
+          atmosphereColor="rgba(150,180,220,0.25)" // Slightly reduced opacity
+          atmosphereAltitude={0.15} // Slightly reduced altitude
+          // Country polygons
+          polygonsData={countries}
+          polygonCapColor={getPolygonCapColor}
+          polygonSideColor="rgba(0,0,0,0.1)"
+          polygonStrokeColor={getPolygonStrokeColor}
+          polygonLabel={({ properties }) => {
+            const name = properties?.name as string | undefined;
+            return getDisplayName(name);
+          }}
+          polygonAltitude={getPolygonAltitude}
+          polygonsTransitionDuration={reducedMotion ? 0 : 300}
+          // Interaction handlers
+          onPolygonHover={handlePolygonHover}
+          onPolygonClick={(feature) => {
+            if (feature?.properties?.name) {
+              const name = feature.properties.name as string;
+              const displayName = getDisplayName(name);
+              const visited = isVisited(name);
               
-              // Enable smooth damping for inertial movement
-              controls.enableDamping = true;
-              controls.dampingFactor = 0.05;
+              debugLog("Country clicked", displayName, visited);
               
-              // Zoom limits
-              controls.minDistance = 200;
-              controls.maxDistance = 1000;
+              // Call parent handler
+              onCountrySelect(displayName, visited);
+            }
+          }}
+          // Camera/controls
+          pointOfView={{ lat: 30, lng: 0, altitude: 2 }}
+          enableZoom={true}
+          enablePointerInteraction={true}
+          // Smooth controls configuration
+          onGlobeReady={(globe) => {
+            // Prevent double initialization (React strict mode in dev)
+            if (initializedRef.current) {
+              debugLog("Globe already initialized, skipping");
+              return;
             }
 
-            // Cap devicePixelRatio on renderer for performance
-            const renderer = globe.renderer();
-            if (renderer) {
-              renderer.setPixelRatio(devicePixelRatio);
-            }
+            try {
+              debugLog("Globe init start");
+              setIsInitializing(true);
+              initializedRef.current = true;
+              globeRef.current = globe;
+              
+              // Configure controls for smooth interaction
+              const controls = globe.controls();
+              if (controls) {
+                // Disable auto-rotate (user controls via drag)
+                controls.autoRotate = false;
+                
+                // Enable smooth damping for inertial movement
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                
+                // Zoom limits
+                controls.minDistance = 200;
+                controls.maxDistance = 1000;
+              }
 
-            // Check if texture loaded
-            const scene = globe.scene();
-            if (scene) {
-              scene.traverse((obj: any) => {
-                if (obj.material && obj.material.map) {
-                  if (obj.material.map.image && obj.material.map.image.complete) {
-                    setTextureLoaded(true);
-                    debugLog("Globe init success - texture already loaded");
-                  } else {
-                    // Texture will load via useEffect handler
-                    debugLog("Globe init success - texture loading");
+              // Cap devicePixelRatio on renderer for performance
+              const renderer = globe.renderer();
+              if (renderer) {
+                renderer.setPixelRatio(devicePixelRatio);
+              }
+
+              // Check if texture loaded
+              const scene = globe.scene();
+              if (scene) {
+                scene.traverse((obj: any) => {
+                  if (obj.material && obj.material.map) {
+                    if (obj.material.map.image && obj.material.map.image.complete) {
+                      setTextureLoaded(true);
+                      debugLog("Globe init success - texture already loaded");
+                    } else {
+                      // Texture will load via useEffect handler
+                      debugLog("Globe init success - texture loading");
+                    }
                   }
-                }
-              });
-            }
+                });
+              }
 
-            setIsInitializing(false);
-            debugLog("Globe init success");
-          } catch (error) {
-            setIsInitializing(false);
-            initializedRef.current = false;
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            setGlobeError(errorMessage);
-            debugLog("Globe init fail", error);
-          }
-        }}
-      />
+              setGlobeMounted(true);
+              setIsInitializing(false);
+              debugLog("Globe init success");
+            } catch (error) {
+              setGlobeMounted(false);
+              setIsInitializing(false);
+              initializedRef.current = false;
+              const errorMessage = error instanceof Error ? error.message : "Unknown error";
+              setGlobeError(errorMessage);
+              debugLog("Globe init fail", error);
+            }
+          }}
+        />
+      )}
       {hovered && (
         <div className="globe-tooltip pointer-events-none absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border border-border/60 bg-surface/90 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-soft">
           {hovered}

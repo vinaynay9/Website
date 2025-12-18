@@ -169,6 +169,40 @@ function ActivitySection({
   // Background opacity - fades in at start, stays visible, fades out at end
   const bgOpacity = useTransform(sectionProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
 
+  // Kinetic scroll-driven transforms for each theme
+  const kineticX = useTransform(sectionProgress, [0, 1], [0, section.id === "scuba" ? -30 : 20]);
+  const kineticY = useTransform(sectionProgress, [0, 1], [0, section.id === "hiking" ? -50 : 30]);
+  const kineticRotate = useTransform(sectionProgress, [0, 1], [0, section.id === "sports" ? 2 : -1]);
+  const kineticScale = useTransform(sectionProgress, [0, 0.5, 1], [1, 1.05, 1]);
+
+  // Get theme-specific overlay styles
+  const getThemeOverlay = () => {
+    switch (section.id) {
+      case "sports":
+        return {
+          background: `
+            radial-gradient(circle at 30% 40%, rgba(255, 107, 53, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 70% 60%, rgba(255, 200, 87, 0.12) 0%, transparent 60%)
+          `
+        };
+      case "hiking":
+        return {
+          background: `
+            linear-gradient(to bottom, rgba(149, 225, 191, 0.12) 0%, transparent 40%, transparent 70%, rgba(95, 168, 140, 0.1) 100%)
+          `
+        };
+      case "scuba":
+        return {
+          background: `
+            radial-gradient(ellipse 100% 80% at 40% 30%, rgba(75, 192, 200, 0.18) 0%, transparent 60%),
+            radial-gradient(ellipse 80% 90% at 60% 70%, rgba(36, 160, 198, 0.14) 0%, transparent 65%)
+          `
+        };
+      default:
+        return {};
+    }
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -184,6 +218,95 @@ function ActivitySection({
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed"
+        }}
+        aria-hidden
+      />
+
+      {/* Kinetic theme overlay - moves with scroll */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          opacity: bgOpacity,
+          x: kineticX,
+          y: kineticY,
+          rotate: kineticRotate,
+          scale: kineticScale,
+          zIndex: -1,
+          ...getThemeOverlay()
+        }}
+        aria-hidden
+      />
+
+      {/* Textured particle layer - unique per theme */}
+      {section.id === "sports" && (
+        <motion.div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            opacity: useTransform(sectionProgress, [0, 0.2, 0.8, 1], [0, 0.6, 0.6, 0]),
+            x: useTransform(sectionProgress, [0, 1], [0, -40]),
+            y: useTransform(sectionProgress, [0, 1], [0, 20]),
+            zIndex: -1,
+            backgroundImage: `
+              radial-gradient(circle at 15% 25%, rgba(255, 107, 53, 0.08) 2px, transparent 2px),
+              radial-gradient(circle at 85% 75%, rgba(255, 200, 87, 0.08) 2px, transparent 2px),
+              radial-gradient(circle at 45% 55%, rgba(255, 107, 53, 0.08) 2px, transparent 2px)
+            `,
+            backgroundSize: "120px 120px, 150px 150px, 100px 100px",
+            backgroundPosition: "0 0, 40px 40px, 80px 20px"
+          }}
+          aria-hidden
+        />
+      )}
+
+      {section.id === "hiking" && (
+        <motion.div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            opacity: useTransform(sectionProgress, [0, 0.2, 0.8, 1], [0, 0.5, 0.5, 0]),
+            y: useTransform(sectionProgress, [0, 1], [0, -60]),
+            zIndex: -1,
+            backgroundImage: `
+              linear-gradient(135deg, rgba(149, 225, 191, 0.06) 25%, transparent 25%),
+              linear-gradient(-135deg, rgba(95, 168, 140, 0.06) 25%, transparent 25%)
+            `,
+            backgroundSize: "200px 200px",
+            backgroundPosition: "0 0, 100px 100px"
+          }}
+          aria-hidden
+        />
+      )}
+
+      {section.id === "scuba" && (
+        <motion.div
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            opacity: useTransform(sectionProgress, [0, 0.2, 0.8, 1], [0, 0.7, 0.7, 0]),
+            x: useTransform(sectionProgress, [0, 1], [0, 30]),
+            y: useTransform(sectionProgress, [0, 1], [0, 15]),
+            zIndex: -1,
+            backgroundImage: `
+              radial-gradient(ellipse 40px 80px at 20% 30%, rgba(75, 192, 200, 0.1) 0%, transparent 50%),
+              radial-gradient(ellipse 60px 100px at 80% 70%, rgba(36, 160, 198, 0.08) 0%, transparent 50%),
+              radial-gradient(ellipse 50px 90px at 50% 50%, rgba(75, 192, 200, 0.09) 0%, transparent 50%)
+            `,
+            backgroundSize: "400px 400px",
+            filter: "blur(30px)"
+          }}
+          aria-hidden
+        />
+      )}
+
+      {/* Theme-specific vignette overlay */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          opacity: bgOpacity,
+          zIndex: -1,
+          background: section.id === "sports" 
+            ? "radial-gradient(ellipse 120% 100% at 50% 50%, transparent 30%, rgba(255, 107, 53, 0.15) 70%, rgba(20, 10, 5, 0.6) 100%)"
+            : section.id === "hiking"
+            ? "radial-gradient(ellipse 110% 100% at 50% 50%, transparent 35%, rgba(95, 168, 140, 0.12) 65%, rgba(11, 24, 16, 0.65) 100%)"
+            : "radial-gradient(ellipse 115% 100% at 50% 50%, transparent 30%, rgba(36, 160, 198, 0.18) 70%, rgba(1, 12, 25, 0.7) 100%)"
         }}
         aria-hidden
       />

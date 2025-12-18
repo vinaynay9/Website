@@ -1,1 +1,20 @@
-{}
+{
+  "app\\home-client.tsx -> @/components/ElectricField": {
+    "id": "app\\home-client.tsx -> @/components/ElectricField",
+    "files": [
+      "static/chunks/_app-pages-browser_components_ElectricField_tsx.js"
+    ]
+  },
+  "app\\home-client.tsx -> @/components/FloatingMoments": {
+    "id": "app\\home-client.tsx -> @/components/FloatingMoments",
+    "files": [
+      "static/chunks/_app-pages-browser_components_FloatingMoments_tsx.js"
+    ]
+  },
+  "app\\travel\\travel-client.tsx -> @/components/globe/GlobeClient": {
+    "id": "app\\travel\\travel-client.tsx -> @/components/globe/GlobeClient",
+    "files": [
+      "static/chunks/_app-pages-browser_components_globe_GlobeClient_tsx.js"
+    ]
+  }
+}

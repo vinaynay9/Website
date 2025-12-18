@@ -50,11 +50,15 @@ const GlobeClient = dynamic(
 function LazyGlobeClient({
   visited,
   countryNameMap,
-  onCountrySelect
+  onCountrySelect,
+  onCountryHover,
+  onGlobeStateChange
 }: {
   visited: string[];
   countryNameMap: Record<string, string>;
   onCountrySelect: (name: string, isVisited: boolean) => void;
+  onCountryHover?: (name: string | null, isVisited: boolean) => void;
+  onGlobeStateChange?: (state: { status: "loading" | "ready" | "error"; error?: string | null }) => void;
 }) {
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,6 +88,13 @@ function LazyGlobeClient({
     };
   }, []);
 
+  // Safety: load after a short delay even if IntersectionObserver fails
+  useEffect(() => {
+    if (shouldLoad) return;
+    const timer = setTimeout(() => setShouldLoad(true), 1200);
+    return () => clearTimeout(timer);
+  }, [shouldLoad]);
+
   return (
     <div ref={containerRef} className="w-full">
       {shouldLoad ? (
@@ -91,6 +102,8 @@ function LazyGlobeClient({
           visited={visited}
           countryNameMap={countryNameMap}
           onCountrySelect={onCountrySelect}
+          onCountryHover={onCountryHover}
+          onGlobeStateChange={onGlobeStateChange}
         />
       ) : (
         <GlobeFallback message="Loading globe…" />
@@ -134,9 +147,23 @@ const findCountryByName = (name: string): TravelCountry | undefined => {
 
 export default function TravelClient() {
   const [modalCountry, setModalCountry] = useState<TravelCountry | null>(null);
+  const [activeCountry, setActiveCountry] = useState<TravelCountry | null>(null);
+  const [hoveredName, setHoveredName] = useState<string | null>(null);
+  const [globeStatus, setGlobeStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [globeError, setGlobeError] = useState<string | null>(null);
 
   const openModal = (country: TravelCountry | undefined) => {
     setModalCountry(country ?? null);
+  };
+
+  const syncActiveCountry = (name: string | null, isVisited: boolean) => {
+    setHoveredName(name);
+    if (name && isVisited) {
+      const match = findCountryByName(name);
+      setActiveCountry(match ?? null);
+    } else {
+      setActiveCountry(null);
+    }
   };
 
   return (
@@ -165,78 +192,87 @@ export default function TravelClient() {
                   visited={visitedCountries}
                   countryNameMap={countryNameMap}
                   onCountrySelect={(name, isVisited) => {
-                    // Log country name in dev only
-                    if (process.env.NODE_ENV === "development") {
-                      console.log("Country selected:", name, "Visited:", isVisited);
-                    }
-                    
-                    // If visited, find and open modal
-                    if (isVisited) {
-                      const match = findCountryByName(name);
-                      openModal(match);
-                    }
+                    syncActiveCountry(name, isVisited);
+                    if (isVisited) openModal(findCountryByName(name));
+                  }}
+                  onCountryHover={syncActiveCountry}
+                  onGlobeStateChange={({ status, error }) => {
+                    setGlobeStatus(status);
+                    setGlobeError(error ?? null);
                   }}
                 />
               </ErrorBoundary>
             </ParallaxLayer>
             <ParallaxLayer speed={10}>
-              <p className="mt-6 text-sm text-muted">Drag to rotate, click to unlock travel notes.</p>
+              <div className="mt-6 flex flex-col gap-2 text-sm text-muted">
+                <p>Drag to rotate, click to unlock travel notes.</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-accent">
+                  Globe status: {globeStatus === "ready" ? "Ready" : globeStatus === "error" ? "Issue" : "Loading"}
+                  {globeError ? ` – ${globeError}` : ""}
+                </p>
+              </div>
             </ParallaxLayer>
           </div>
         )}
       </ScrollScene>
+      <div className="rounded-[20px] border border-border/60 bg-surface/70 p-4 shadow-soft">
+        <p className="text-xs uppercase tracking-[0.35em] text-muted">Country detail</p>
+        {activeCountry ? (
+          <div className="mt-3 space-y-1">
+            <DynamicHeading profile={travelTypography.heading} as="h3" className="text-xl text-white">
+              {activeCountry.name}
+            </DynamicHeading>
+            <p className="text-xs uppercase tracking-[0.25em] text-accent">{activeCountry.year}</p>
+            <p className="text-sm text-muted">{activeCountry.highlight}</p>
+          </div>
+        ) : hoveredName ? (
+          <p className="mt-3 text-sm text-muted/80">
+            {hoveredName} is not in the travel log yet.
+          </p>
+        ) : (
+          <p className="mt-3 text-sm text-muted/80">Hover a highlighted country to sync with the log.</p>
+        )}
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         {travelLog.map((country) => (
           <article
             key={country.code}
-            className="relative overflow-hidden rounded-[20px] border border-border/60 bg-gradient-to-br from-[#0f1a2a] to-[#05090f] p-5 shadow-soft"
+            className={`relative overflow-hidden rounded-[20px] border bg-gradient-to-br from-[#0f1a2a] to-[#05090f] p-6 shadow-soft transition duration-150 ${
+              activeCountry?.code === country.code
+                ? "border-accent/70 shadow-[0_0_0_1px_rgba(56,189,248,0.3)]"
+                : "border-border/60"
+            } ${hoveredName && activeCountry?.code !== country.code ? "opacity-75" : ""}`}
+            aria-live={activeCountry?.code === country.code ? "polite" : "off"}
           >
             <div className="absolute inset-0 opacity-30" aria-hidden />
-            <div className="flex items-center justify-between">
-              <div>
-                <DynamicHeading
-                  profile={travelTypography.subheading!}
-                  as="p"
-                  className="text-xs text-muted"
-                >
-                  {country.year}
-                </DynamicHeading>
-                <DynamicHeading
-                  profile={travelTypography.heading}
-                  as="h3"
-                  className="text-2xl text-white"
-                >
-                  {country.name}
-                </DynamicHeading>
-                {(() => {
-                  const native = getNativeCountryName(country.name);
-                  return native ? (
-                    <DynamicHeading
-                      profile={travelTypography.subheading!}
-                      as="p"
-                      className="text-sm text-muted/70 mt-1"
-                    >
-                      {native.native}
-                    </DynamicHeading>
-                  ) : null;
-                })()}
-              </div>
+            <div className="relative space-y-1">
+              <DynamicHeading
+                profile={travelTypography.heading}
+                as="h3"
+                className="text-2xl font-medium text-white"
+              >
+                {country.name}
+              </DynamicHeading>
+              {(() => {
+                const native = getNativeCountryName(country.name);
+                return native ? (
+                  <DynamicHeading
+                    profile={travelTypography.subheading!}
+                    as="p"
+                    className="text-sm italic text-muted/60"
+                  >
+                    {native.native}
+                  </DynamicHeading>
+                ) : null;
+              })()}
               <DynamicHeading
                 profile={travelTypography.subheading!}
-                as="span"
-                className="text-xs text-accent"
+                as="p"
+                className="pt-2 text-xs uppercase tracking-[0.3em] text-muted"
               >
-                {country.region}
+                {country.year}
               </DynamicHeading>
             </div>
-            <p className="text-sm text-muted">{country.highlight}</p>
-            <button
-              type="button"
-              onClick={() => openModal(country)}
-              className="accent-hover mt-4 self-start rounded-full border border-border/60 px-5 py-2 text-xs uppercase tracking-[0.4em] transition-all duration-300 hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              View gallery
-            </button>
           </article>
         ))}
       </div>
